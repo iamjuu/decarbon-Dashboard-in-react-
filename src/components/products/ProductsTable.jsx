@@ -1,13 +1,12 @@
 import { motion } from "framer-motion";
-import { Edit, Search, Trash2 } from "lucide-react";
+import { Search, Trash2, Check } from "lucide-react";
 import { useState } from "react";
 
 const PRODUCT_DATA = [
-	{ id: 1, name: "Wireless Earbuds", category: "Electronics", price: 59.99, stock: 143, sales: 1200 },
-	{ id: 2, name: "Leather Wallet", category: "Accessories", price: 39.99, stock: 89, sales: 800 },
-	{ id: 3, name: "Smart Watch", category: "Electronics", price: 199.99, stock: 56, sales: 650 },
-	{ id: 4, name: "Yoga Mat", category: "Fitness", price: 29.99, stock: 210, sales: 950 },
-	{ id: 5, name: "Coffee Maker", category: "Home", price: 79.99, stock: 78, sales: 720 },
+	{ id: 1, name: "muuhammed Earbuds", age: 30, Payment: 300.00, Date: 'Jan-2025', Time: '10:00', price: 120.00, stock: 10, sales: 50 },
+	{ id: 2, name: "john", age: 32, Payment: 300.00, Date: 'Jan-2025', Time: '11:00', price: 150.00, stock: 15, sales: 45 },
+	{ id: 3, name: "Wireless Earbuds", age: 20, Payment: 300.00, Date: 'Jan-2025', Time: '12:00', price: 130.00, stock: 20, sales: 30 },
+	{ id: 4, name: "Earbuds", age: 35, Payment: 300.00, Date: 'Jan-2025', Time: '1:00', price: 100.00, stock: 5, sales: 20 },
 ];
 
 const ProductsTable = () => {
@@ -18,7 +17,7 @@ const ProductsTable = () => {
 		const term = e.target.value.toLowerCase();
 		setSearchTerm(term);
 		const filtered = PRODUCT_DATA.filter(
-			(product) => product.name.toLowerCase().includes(term) || product.category.toLowerCase().includes(term)
+			(product) => product.name.toLowerCase().includes(term) || product.category?.toLowerCase().includes(term)
 		);
 
 		setFilteredProducts(filtered);
@@ -32,7 +31,7 @@ const ProductsTable = () => {
 			transition={{ delay: 0.2 }}
 		>
 			<div className='flex justify-between items-center mb-6'>
-				<h2 className='text-xl font-semibold text-gray-100'>Product List</h2>
+				<h2 className='text-xl font-semibold text-gray-100'>Request</h2>
 				<div className='relative'>
 					<input
 						type='text'
@@ -53,16 +52,16 @@ const ProductsTable = () => {
 								Name
 							</th>
 							<th className='px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider'>
-								Category
+								Age
 							</th>
 							<th className='px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider'>
-								Price
+								Payment
 							</th>
 							<th className='px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider'>
-								Stock
+								Date
 							</th>
 							<th className='px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider'>
-								Sales
+								Time
 							</th>
 							<th className='px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider'>
 								Actions
@@ -88,19 +87,20 @@ const ProductsTable = () => {
 								</td>
 
 								<td className='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>
-									{product.category}
+									{product.age}
 								</td>
 
 								<td className='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>
-									${product.price.toFixed(2)}
+									${product.Payment.toFixed(2)}
 								</td>
-								<td className='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>{product.stock}</td>
-								<td className='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>{product.sales}</td>
-								<td className='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>
-									<button className='text-indigo-400 hover:text-indigo-300 mr-2'>
-										<Edit size={18} />
+								<td className='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>{product.Date}</td>
+								<td className='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>{product.Time}</td>
+
+								<td className='px-6 py-4 whitespace-nowrap text-sm flex gap-5 text-gray-300'>
+									<button className='text-green-500 hover:text-indigo-300 mr-2'>
+										<Check size={18} />
 									</button>
-									<button className='text-red-400 hover:text-red-300'>
+									<button className='text-red-500 hover:text-red-300'>
 										<Trash2 size={18} />
 									</button>
 								</td>
@@ -112,4 +112,5 @@ const ProductsTable = () => {
 		</motion.div>
 	);
 };
+
 export default ProductsTable;
