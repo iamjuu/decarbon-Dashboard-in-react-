@@ -1,6 +1,6 @@
-import { UserCheck, UserPlus, UsersIcon, UserX } from "lucide-react";
+import { UserCheck, UserPlus, UsersIcon, UserX,DollarSign  } from "lucide-react";
 import { motion } from "framer-motion";
-
+import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
 import StatCard from "../components/common/StatCard";
 import UsersTable from "../components/users/UsersTable";
@@ -9,14 +9,17 @@ import UserActivityHeatmap from "../components/users/UserActivityHeatmap";
 import UserDemographicsChart from "../components/users/UserDemographicsChart";
 
 const userStats = {
-	totalUsers: 152845,
-	newUsersToday: 243,
-	activeUsers: 98520,
-	churnRate: "2.4%",
+	totalUsers: 243,
+	totalServices: 243,
+	enquryClients: 20,
+	totalprofit: 10000,
 };
 
 const UsersPage = () => {
 	return (
+		<>
+		
+<Sidebar/>
 		<div className='flex-1 overflow-auto relative z-10'>
 			<Header title='Users' />
 
@@ -34,14 +37,14 @@ const UsersPage = () => {
 						value={userStats.totalUsers.toLocaleString()}
 						color='#6366F1'
 					/>
-					<StatCard name='New Users Today' icon={UserPlus} value={userStats.newUsersToday} color='#10B981' />
+					<StatCard name='Total Services' icon={UserPlus} value={userStats.totalServices} color='#b91010' />
 					<StatCard
-						name='Active Users'
+						name='Enqury Clients'
 						icon={UserCheck}
-						value={userStats.activeUsers.toLocaleString()}
+						value={userStats.enquryClients.toLocaleString()}
 						color='#F59E0B'
 					/>
-					<StatCard name='Churn Rate' icon={UserX} value={userStats.churnRate} color='#EF4444' />
+					<StatCard name='Total profit' icon={DollarSign} value={userStats.totalprofit} color='#10B981' />
 				</motion.div>
 
 				<UsersTable />
@@ -54,6 +57,7 @@ const UsersPage = () => {
 				</div>
 			</main>
 		</div>
+		</>
 	);
 };
 export default UsersPage;
