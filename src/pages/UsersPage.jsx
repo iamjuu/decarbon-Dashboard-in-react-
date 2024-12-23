@@ -1,6 +1,6 @@
 import { UserCheck, UserPlus, UsersIcon, UserX,DollarSign  } from "lucide-react";
 import { motion } from "framer-motion";
-
+import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
 import StatCard from "../components/common/StatCard";
 import UsersTable from "../components/users/UsersTable";
@@ -17,6 +17,9 @@ const userStats = {
 
 const UsersPage = () => {
 	return (
+		<>
+		
+<Sidebar/>
 		<div className='flex-1 overflow-auto relative z-10'>
 			<Header title='Users' />
 
@@ -47,13 +50,14 @@ const UsersPage = () => {
 				<UsersTable />
 
 				{/* USER CHARTS */}
-				{/* <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8'>
+				<div className='grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8'>
 					<UserGrowthChart />
 					<UserActivityHeatmap />
 					<UserDemographicsChart />
-				</div> */}
+				</div>
 			</main>
 		</div>
+		</>
 	);
 };
 export default UsersPage;

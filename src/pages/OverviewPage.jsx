@@ -1,6 +1,6 @@
 import { BarChart2, ShoppingBag, Users, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-
+import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
 import StatCard from "../components/common/StatCard";
 import SalesOverviewChart from "../components/overview/SalesOverviewChart";
@@ -8,7 +8,13 @@ import CategoryDistributionChart from "../components/overview/CategoryDistributi
 import SalesChannelChart from "../components/overview/SalesChannelChart";
 
 const OverviewPage = () => {
+
+
+	
 	return (
+		<>
+		
+		<Sidebar/>
 		<div className='flex-1 overflow-auto relative z-10'>
 			<Header title='Overview' />
 
@@ -27,7 +33,6 @@ const OverviewPage = () => {
 				</motion.div>
 
 				{/* CHARTS */}
-
 				<div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
 					<SalesOverviewChart />
 					<CategoryDistributionChart />
@@ -35,6 +40,7 @@ const OverviewPage = () => {
 				</div>
 			</main>
 		</div>
+		</>
 	);
 };
 export default OverviewPage;
