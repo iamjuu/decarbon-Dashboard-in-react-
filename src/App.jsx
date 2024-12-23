@@ -2,10 +2,6 @@ import { Route, Router, Routes } from "react-router-dom";
 import Sidebar from "./components/common/Sidebar";
 import OverviewPage from "./pages/OverviewPage";
 import UsersPage from "./pages/UsersPage";
-// import RequestPage from "./pages/RequestPage";
-// import SalesPage from "./pages/SalesPage";
-// import OrdersPage from "./pages/OrdersPage";
-// import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
 import PersonalPage from "./pages/personDetails";
 import './App.css'
@@ -22,19 +18,17 @@ function App() {
 	<Route path="/login" element={<Login/>}/>
 	<Route path="/shaff" element={<ShaffLanding/>}/>
 	<Route path="/userList" element={<UserList/>}/>
-
+	<Route path='/staffs-bill-form' element={<ShafBillForm />} />
 
 </Routes>
 	
 		<div className='  flex  bg-gray-900 text-gray-100  '>
-		
 			<Routes>
 				<Route path='/' element={<OverviewPage />} />
 				<Route path='/users' element={<UsersPage />} />
 				<Route path='/settings' element={<SettingsPage />} />
 				<Route path='/client-details' element={<PersonalPage />} />
 				{/* **********shaffs Routes********** */}
-				<Route path='/staffs-bill-form' element={<ShafBillForm />} />
 			</Routes>
 		</div>
 
