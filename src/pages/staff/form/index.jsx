@@ -1,127 +1,89 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
-import styled, { createGlobalStyle } from 'styled-components';
-import LeftSideBar from '../home/LeftSideBar';
 
-const userData = [
-  // Your sample user data here
-];
+import Header from "../../../components/common/Header";
+import StatCard from "../../../components/common/StatCard";
 
-const Index = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState(userData);
-  const [newUser, setNewUser] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    vehicleType: '',
-    vehicleNumber: '',
-    itemsName: '',
-    quantity: '',
-    price: '',
-    discount: '',
-    gstAmount: ''
-  });
+import { AlertTriangle, DollarSign, Package, TrendingUp } from "lucide-react";
+import CategoryDistributionChart from "../../../components/overview/CategoryDistributionChart";
+import SalesTrendChart from "../../../components/products/SalesTrendChart";
+import ProductsTable from "../../../components/products/ProductsTable";
+import Sidebar from "../../../components/common/Sidebar";
+const RequestPage = () => {
+	return (<>
+    <Sidebar/>
+		<div className='flex-1 overflow-auto relative z-10'>
+			<Header title='Client Bill Form' />
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    const searchValue = e.target.value.toLowerCase();
-    const filtered = userData.filter(user => {
-      return (
-        user.name.toLowerCase().includes(searchValue) ||
-        user.phone.includes(searchValue) ||
-        user.vehicleType.toLowerCase().includes(searchValue) ||
-        user.vehiclenumber.toLowerCase().includes(searchValue) ||
-        user.itemsname.toLowerCase().includes(searchValue)
-      );
-    });
-    setFilteredUsers(filtered);
-  };
+			<main className='max-w-7xl mx-auto py-6 px-4 lg:px-8'>
+			{/* add boxes  here */}
+			import React from 'react';
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setNewUser((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(newUser);
-    // Handle form submission logic
-  };
+    <div className="max-w-lg mx-auto bg-gray-800 text-white p-6 rounded-lg shadow-lg">
+      <h2 className="text-2xl font-bold mb-6 text-center">Item Details Form</h2>
+      <form className="space-y-4">
+        {/* QTY Field */}
+        <div>
+          <label className="block text-sm font-medium mb-2" htmlFor="qty">
+            Quantity (QTY)
+          </label>
+          <input
+            type="number"
+            id="qty"
+            placeholder="Enter quantity"
+            className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+          />
+        </div>
 
-  return (
-    <>
-      <GlobalStyle />
-      <Container>
-        <Left>
-          <LeftSideBar />
-          <div className="p-6 w-full">
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Client Bill</h2>
-            <form onSubmit={handleSubmit} className="mt-[1px] w-full">
-              <div className="flex flex-col space-y-4 w-[50%]">
-                <div className="flex gap-5">
-                  <div className="w-full">
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      id="name"
-                      value={newUser.name}
-                      onChange={handleChange}
-                      placeholder="Name"
-                      className="p-2 border rounded-md w-full"
-                    />
-                  </div>
-                  <div className="w-full">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                    <input
-                      type="email"
-                      name="email"
-                      id="email"
-                      value={newUser.email}
-                      onChange={handleChange}
-                      placeholder="Email"
-                      className="p-2 border rounded-md w-full"
-                    />
-                  </div>
-                </div>
-                {/* Other form fields similar to above */}
-                <button type="submit" className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 w-full">
-                  Submit
-                </button>
-              </div>
-            </form>
-          </div>
-        </Left>
-      </Container>
+        {/* Each Field */}
+        <div>
+          <label className="block text-sm font-medium mb-2" htmlFor="each">
+            Each (Price per Item)
+          </label>
+          <input
+            type="number"
+            id="each"
+            placeholder="Enter price per item"
+            className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Amount Field */}
+        <div>
+          <label className="block text-sm font-medium mb-2" htmlFor="amount">
+            Amount
+          </label>
+          <input
+            type="number"
+            id="amount"
+            placeholder="Total amount"
+            className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Submit Button */}
+        <div className="text-center">
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-300"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+
+
+				{/* <ProductsTable /> */}
+
+				{/* CHARTS */}
+				<div className='grid grid-col-1 lg:grid-cols-2 gap-8'>
+					<SalesTrendChart />
+					<CategoryDistributionChart />
+				</div>
+			</main>
+		</div>
     </>
-  );
+	);
 };
-
-export default Index;
-
-const GlobalStyle = createGlobalStyle`
-  html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-`;
-
-const Container = styled.div`
-  background-color: #1F2937;
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: row;
-`;
-
-const Left = styled.div`
-  width: 100%;
-  display: flex;
-  background-color:#242e3c;
-  flex-grow: 1;
-`;
+export default RequestPage;

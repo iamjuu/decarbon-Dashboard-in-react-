@@ -9,16 +9,15 @@ import './App.css'
 //*********shaffs***********//
 import ShafBillForm from './pages/staff/form';
 import Login from './components/login'
-import ShaffLanding from './pages/staff/home'
-import UserList from './pages/staff/users'
+// import ShaffLanding from './pages/staff/home'
+// import UserList from './pages/staff/users'
 function App() {
 	return (
 		<>
 <Routes>
 	<Route path="/login" element={<Login/>}/>
-	<Route path="/shaff" element={<ShaffLanding/>}/>
-	<Route path="/userList" element={<UserList/>}/>
-	<Route path='/staffs-bill-form' element={<ShafBillForm />} />
+	{/* <Route path="/shaff" element={<ShaffLanding/>}/>
+	<Route path="/userList" element={<UserList/>}/> */}
 
 </Routes>
 	
@@ -28,6 +27,8 @@ function App() {
 				<Route path='/users' element={<UsersPage />} />
 				<Route path='/settings' element={<SettingsPage />} />
 				<Route path='/client-details' element={<PersonalPage />} />
+				<Route path='/staffs-bill-form' element={<ShafBillForm />} />
+
 				{/* **********shaffs Routes********** */}
 			</Routes>
 		</div>

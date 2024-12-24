@@ -58,23 +58,15 @@ const Index = () => {
 
   return (
     <>
-      <GlobalStyle /> {/* Apply global styles */}
       <Container>
         <Left>
           <LeftSideBar />
+          </Left>
+
+<Right>
           <div className="overflow-x-auto p-4">
-            <div className="mb-4">
-              <div className="relative">
-                <input
-                  type="text"
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-64"
-                  placeholder="Search..."
-                  value={searchTerm}
-                  onChange={handleSearch}
-                />
-              </div>
-            </div>
-            <table className="min-w-full divide-y divide-gray-700">
+         
+            <table className=" mt-24 min-w-full divide-y divide-gray-700">
               <thead>
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
@@ -144,7 +136,7 @@ const Index = () => {
               </tbody>
             </table>
           </div>
-        </Left>
+          </Right>
       </Container>
     </>
   );
@@ -152,27 +144,23 @@ const Index = () => {
 
 export default Index;
 
-// Global Styles for Full-Screen
-const GlobalStyle = createGlobalStyle`
-  html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-`;
+
 
 // Styled Components
 const Container = styled.div`
-  background-color: #1F2937;
   width: 100%;
   height: 100vh; /* Full height of the viewport */
   display: flex;
-  flex-direction: row; /* To keep the sidebar and content next to each other */
 `;
 
 const Left = styled.div`
-  width: 100%;
+  width: 20%;
   display: flex;
-  background-color:#242e3c;
-  flex-grow: 1; /* To take up remaining space */
+  background-color:#262f3a;
 `;
+
+const Right = styled.div`
+  width: 80%;
+  background-color: #232c38;
+
+`
