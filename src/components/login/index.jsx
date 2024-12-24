@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios'; // Import Axios
 import { Link, useNavigate } from 'react-router-dom';
 
 const LoginWrapper = styled.div`
@@ -70,51 +69,46 @@ const Message = styled.p`
 `;
 
 const Login = () => {
-  const navigate = useNavigate(); // Correctly call useNavigate hook
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
 
-  const handleSubmit = async (e) => {
+  // Hardcoded user data for admin and staff
+  const users = [
+    { email: 'admin@example.com', password: 'admin123', role: 'admin' },
+    { email: 'staff@example.com', password: 'staff123', role: 'staff' },
+  ];
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-  
+
     if (!email || !password) {
       setMessage('Both fields are required!');
       setIsError(true);
       return;
     }
-  
-    try {
-      const response = await axios.post('http://localhost:3000/login', { email, password });
-  
-      if (response.status === 200) {
-        console.log('success');
-        
-        navigate('/register')
-        setMessage('Login successful!');
-        setIsError(false);
-        console.log('User logged in:', response.data);
-        // Redirect to the dashboard or home page
+
+    // Simulate login by checking the hardcoded users
+    const user = users.find(
+      (user) => user.email === email && user.password === password
+    );
+
+    if (user) {
+      // If user is found, check role and redirect accordingly
+      if (user.role === 'admin') {
+        console.log('Admin logged in');
+        navigate('/'); // Redirect to admin dashboard
+      } else if (user.role === 'staff') {
+        console.log('Staff logged in');
+        navigate('/shaff'); // Redirect to staff dashboard
       }
-    } catch (error) {
-      if (error.response?.status === 404) {
-        console.log('fail');
-        
-        setMessage('Email not registered. Redirecting to signup...');
-        setIsError(true);
-  
-        // Redirect to the signup page after a delay
-        setTimeout(() => {
-          window.location.href = '/signup'; // Adjust the path as needed
-        }, 2000);
-      } else {
-        setMessage(error.response?.data?.message || 'An error occurred. Please try again.');
-        setIsError(true);
-      }
+    } else {
+      setMessage('Invalid email or password');
+      setIsError(true);
     }
   };
-  
 
   return (
     <LoginWrapper>
@@ -137,30 +131,13 @@ const Login = () => {
           />
         </InputWrapper>
         <Button type="submit">Login</Button>
-<Link to="/signup">
-      <Label> signup </Label>
-</Link>
+        <Link to="/signup">
+          <Label>Sign up</Label>
+        </Link>
       </Form>
       {message && <Message error={isError}>{message}</Message>}
     </LoginWrapper>
   );
 };
+
 export default Login;
-
-
-// import React from 'react'
-// import styled from 'styled-components'
-// const index = () => {
-//   return (
-//     <div>
-      
-//     </div>
-//   )
-// }
-
-// export default index
-
-// const Container = styled.div`
-// background-color:red;
-
-// `

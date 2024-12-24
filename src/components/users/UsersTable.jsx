@@ -2,21 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 
-// const userData = [
-//   {
-//     id: 1,
-//     name: "Muhammed Ajmal CC",
-//     phone: "7025715250",
-//     vehicleType: "Bike",
-//     vehiclenumber: "KL 13 AQ 1596",
-//     itemsname: "Pulser",
-//     Quantity: "1",
-//     Price: "2118.64",
-//     Discount: "83.158%",
-//     Gst: "64.24(18.0%)",
-//     Amount: "4210",
-//   },
-// ];
+
 
 const UsersTable = ({userData}) => {
   const [searchTerm, setSearchTerm] = useState("");
