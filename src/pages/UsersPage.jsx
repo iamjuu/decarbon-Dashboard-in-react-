@@ -8,7 +8,8 @@ import UserGrowthChart from "../components/users/UserGrowthChart";
 import UserActivityHeatmap from "../components/users/UserActivityHeatmap";
 import UserDemographicsChart from "../components/users/UserDemographicsChart";
 import { utils, writeFile } from "xlsx"; // Importing xlsx library
-
+import { useEffect, useState } from "react";
+import Axios from '../Instance/Instance'
 const userStats = {
   totalUsers: 243,
   totalServices: 243,
@@ -43,17 +44,34 @@ const userData = [
     Gst: "64.24(18.0%)",
     Amount: "4210",
   },
-  // Add more user data here if needed
 ];
 
 const UsersPage = () => {
-  // Function to export user data to an Excel sheet
+  const [userList,setUserList] = useState('')
+
   const exportToExcel = () => {
-    const ws = utils.json_to_sheet(userData); // Convert the userData to a worksheet
-    const wb = utils.book_new(); // Create a new workbook
-    utils.book_append_sheet(wb, ws, "Users"); // Append the worksheet to the workbook
-    writeFile(wb, "users_data.xlsx"); // Write the workbook to a file
+    const ws = utils.json_to_sheet(userData); 
+    const wb = utils.book_new(); 
+    utils.book_append_sheet(wb, ws, "Users");
+    writeFile(wb, "users_data.xlsx"); 
   };
+
+  useEffect(() => {
+    const userGet = async () => {
+      try {
+        const response = await Axios.get('/users');
+        if (response.status === 200) {
+          console.log(response.data, 'data got');
+          setUserList(response.data.user); 
+        }
+      } catch (error) {
+        console.log(error, 'error in users path');
+      }
+    };
+    userGet();
+  }, []);
+  
+
 
   return (
     <>

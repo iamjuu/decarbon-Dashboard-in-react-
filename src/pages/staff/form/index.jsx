@@ -15,12 +15,10 @@ const RequestPage = () => {
 			<Header title='Client Bill Form' />
 
 			<main className='max-w-7xl mx-auto py-6 px-4 lg:px-8'>
-			{/* add boxes  here */}
-			import React from 'react';
 
 
-    <div className="max-w-lg mx-auto bg-gray-800 text-white p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-6 text-center">Item Details Form</h2>
+    <div className="max-w-lg mx-auto mb-5 bg-gray-800 text-white p-6 rounded-lg shadow-lg">
+      <h2 className="text-2xl font-bold mb-6 text-center">Client Bill Form</h2>
       <form className="space-y-4">
         {/* QTY Field */}
         <div>
