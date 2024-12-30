@@ -4,13 +4,12 @@ import CategoryDistributionChart from "../../../components/overview/CategoryDist
 import SalesTrendChart from "../../../components/products/SalesTrendChart";
 import Sidebar from "../../../components/common/Sidebar";
 import Axios from "../../../Instance/Instance";
+import Swal from 'sweetalert2';
 
 const RequestPage = () => {
   const [vehicleList, setVehicleList] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [userData, setUserData] = useState("");
-
-  // State variables for form fields
   const [ownerName, setOwnerName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [vehicleYear, setVehicleYear] = useState("");
@@ -34,30 +33,35 @@ const RequestPage = () => {
     fetchVehicleNumbers();
   }, []);
 
-useEffect(() => {
-  const userDataget = async () => {
-    try {
-      const response = await Axios.get("/user-details", {
-        params: { vehicleNumber: selectedVehicle }, // Pass as query params
-      });
-      console.log("User data retrieved:", response?.data);
-      if (response?.data?.message) {
-        setUserData(response.data.data); // Assuming `data` contains user data
-      } else {
-        console.log("No data found for the selected vehicle.");
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await Axios.get("/user-details", {
+          params: { vehicleNumber: selectedVehicle },
+        });
+        console.log("User data retrieved:", response?.data);
+        if (response?.data?.data) {
+          setUserData(response.data.data);
+          setOwnerName(response.data.data[0].name || "");
+          setPhoneNumber(response.data.data[0].phone || "");
+          setVehicleYear(response.data.data[0].vehicleyear || "");
+          setVehicleModel(response.data.data[0].vehicleModel || "");
+          setKilometer(response.data.data[0].kilometer || "");
+          setSmoke(response.data.data[0].smoke || "");
+          setLhceDetails(response.data.data[0].lhceDetails || "");
+          setFuelType(response.data.data[0].fuelType || "");
+        } else {
+          console.log("No data found for the selected vehicle.");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
       }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
+    };
+
+    if (selectedVehicle) {
+      fetchUserData();
     }
-  };
-
-  if (selectedVehicle) {
-    userDataget();
-  }
-}, [selectedVehicle]);
-
-
-  // **********************************
+  }, [selectedVehicle]);
 
   const handleVehicleChange = (event) => {
     const vehicleNumber = event.target.value;
@@ -67,7 +71,6 @@ useEffect(() => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     const formData = {
       vehicleNumber: selectedVehicle,
       ownerName,
@@ -83,23 +86,29 @@ useEffect(() => {
     try {
       const response = await Axios.post("/cleint-bill", formData);
       console.log("Form submitted successfully:", response);
-      // Handle the response here, e.g., show a success message
+      
+      // Show success sweet alert
+      await Swal.fire({
+        title: 'Success!',
+        text: 'Client bill has been saved successfully',
+        icon: 'success',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+      });
+
     } catch (error) {
       console.error("Error submitting form:", error);
-      // Handle the error here, e.g., show an error message
+      
+      // Show error sweet alert
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to save client bill. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'OK'
+      });
     }
   };
-
-  // // Form fields definition
-  // const formFields = [
-  //   { id: "owner-name", label: "Owner Full Name", value: ownerName, setter: setOwnerName, type: "text" },
-  //   { id: "phone-number", label: "Phone Number", value: phoneNumber, setter: setPhoneNumber, type: "tel" },
-  //   { id: "vehicle-year", label: "Vehicle Year", value: vehicleYear, setter: setVehicleYear, type: "number" },
-  //   { id: "vehicle-model", label: "Vehicle Model", value: vehicleModel, setter: setVehicleModel, type: "text" },
-  //   { id: "kilometer", label: "Kilometer", value: kilometer, setter: setKilometer, type: "number" },
-  //   { id: "smoke", label: "Smoke", value: smoke, setter: setSmoke, type: "text" },
-  //   { id: "lhce-details", label: "LHCE Details", value: lhceDetails, setter: setLhceDetails, type: "text" },
-  // ];
 
   return (
     <>
@@ -127,8 +136,6 @@ useEffect(() => {
             </div>
 
             <form className="space-y-4" onSubmit={handleSubmit}>
-              {/* Dynamically render form fields */}
-              <form className="space-y-4" onSubmit={handleSubmit}>
   <div>
     <label className="block text-sm font-medium mb-2" htmlFor="owner-name">
       Owner Full Name
@@ -136,10 +143,11 @@ useEffect(() => {
     <input
       type="text"
       id="owner-name"
-      value={userData.name || ownerName}
+      value={ownerName}
       onChange={(e) => setOwnerName(e.target.value)}
       placeholder="Enter owner full name"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -150,10 +158,11 @@ useEffect(() => {
     <input
       type="tel"
       id="phone-number"
-      value={userData.phone || phoneNumber}
+      value={phoneNumber}
       onChange={(e) => setPhoneNumber(e.target.value)}
       placeholder="Enter phone number"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -168,6 +177,7 @@ useEffect(() => {
       onChange={(e) => setVehicleYear(e.target.value)}
       placeholder="Enter vehicle year"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -182,6 +192,7 @@ useEffect(() => {
       onChange={(e) => setVehicleModel(e.target.value)}
       placeholder="Enter vehicle model"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -196,6 +207,7 @@ useEffect(() => {
       onChange={(e) => setKilometer(e.target.value)}
       placeholder="Enter kilometer"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -210,6 +222,7 @@ useEffect(() => {
       onChange={(e) => setSmoke(e.target.value)}
       placeholder="Enter smoke information"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -224,6 +237,7 @@ useEffect(() => {
       onChange={(e) => setLhceDetails(e.target.value)}
       placeholder="Enter LHCE details"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -236,7 +250,9 @@ useEffect(() => {
       value={fuelType}
       onChange={(e) => setFuelType(e.target.value)}
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     >
+      <option value="">Select fuel type</option>
       <option value="petrol">Petrol</option>
       <option value="diesel">Diesel</option>
     </select>
@@ -252,10 +268,6 @@ useEffect(() => {
   </div>
 </form>
 
-    
-
-           
-            </form>
           </div>
 
           {/* CHARTS */}
