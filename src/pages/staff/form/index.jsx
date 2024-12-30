@@ -4,9 +4,9 @@ import CategoryDistributionChart from "../../../components/overview/CategoryDist
 import SalesTrendChart from "../../../components/products/SalesTrendChart";
 import Sidebar from "../../../components/common/Sidebar";
 import Axios from "../../../Instance/Instance";
+import Swal from 'sweetalert2';
 
 const RequestPage = () => {
-//  vehicle numbers  
   const [vehicleList, setVehicleList] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [userData, setUserData] = useState("");
@@ -32,6 +32,7 @@ const RequestPage = () => {
     };
     fetchVehicleNumbers();
   }, []);
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -42,10 +43,9 @@ const RequestPage = () => {
         if (response?.data?.data) {
           setUserData(response.data.data);
           setOwnerName(response.data.data[0].name || "");
-          console.log(ownerName,'name');
           setPhoneNumber(response.data.data[0].phone || "");
-          setVehicleYear(response.data.data[0].year || "");
-          setVehicleModel(response.data.data[0].model || "");
+          setVehicleYear(response.data.data[0].vehicleyear || "");
+          setVehicleModel(response.data.data[0].vehicleModel || "");
           setKilometer(response.data.data[0].kilometer || "");
           setSmoke(response.data.data[0].smoke || "");
           setLhceDetails(response.data.data[0].lhceDetails || "");
@@ -62,11 +62,13 @@ const RequestPage = () => {
       fetchUserData();
     }
   }, [selectedVehicle]);
+
   const handleVehicleChange = (event) => {
     const vehicleNumber = event.target.value;
     setSelectedVehicle(vehicleNumber);
     console.log(vehicleNumber, "selected");
   };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = {
@@ -80,13 +82,34 @@ const RequestPage = () => {
       smoke,
       lhceDetails
     };
+
     try {
       const response = await Axios.post("/cleint-bill", formData);
       console.log("Form submitted successfully:", response);
+      
+      // Show success sweet alert
+      await Swal.fire({
+        title: 'Success!',
+        text: 'Client bill has been saved successfully',
+        icon: 'success',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+      });
+
     } catch (error) {
       console.error("Error submitting form:", error);
+      
+      // Show error sweet alert
+      Swal.fire({
+        title: 'Error!',
+        text: 'Failed to save client bill. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'OK'
+      });
     }
   };
+
   return (
     <>
       <Sidebar />
@@ -113,8 +136,6 @@ const RequestPage = () => {
             </div>
 
             <form className="space-y-4" onSubmit={handleSubmit}>
-              {/* Dynamically render form fields */}
-              <form className="space-y-4" onSubmit={handleSubmit}>
   <div>
     <label className="block text-sm font-medium mb-2" htmlFor="owner-name">
       Owner Full Name
@@ -122,10 +143,11 @@ const RequestPage = () => {
     <input
       type="text"
       id="owner-name"
-      value={userData.name || ownerName}
+      value={ownerName}
       onChange={(e) => setOwnerName(e.target.value)}
       placeholder="Enter owner full name"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -136,10 +158,11 @@ const RequestPage = () => {
     <input
       type="tel"
       id="phone-number"
-      value={userData.phone || phoneNumber}
+      value={phoneNumber}
       onChange={(e) => setPhoneNumber(e.target.value)}
       placeholder="Enter phone number"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -154,6 +177,7 @@ const RequestPage = () => {
       onChange={(e) => setVehicleYear(e.target.value)}
       placeholder="Enter vehicle year"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -168,6 +192,7 @@ const RequestPage = () => {
       onChange={(e) => setVehicleModel(e.target.value)}
       placeholder="Enter vehicle model"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -182,6 +207,7 @@ const RequestPage = () => {
       onChange={(e) => setKilometer(e.target.value)}
       placeholder="Enter kilometer"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -196,6 +222,7 @@ const RequestPage = () => {
       onChange={(e) => setSmoke(e.target.value)}
       placeholder="Enter smoke information"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -210,6 +237,7 @@ const RequestPage = () => {
       onChange={(e) => setLhceDetails(e.target.value)}
       placeholder="Enter LHCE details"
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     />
   </div>
 
@@ -222,7 +250,9 @@ const RequestPage = () => {
       value={fuelType}
       onChange={(e) => setFuelType(e.target.value)}
       className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+      required
     >
+      <option value="">Select fuel type</option>
       <option value="petrol">Petrol</option>
       <option value="diesel">Diesel</option>
     </select>
@@ -238,10 +268,6 @@ const RequestPage = () => {
   </div>
 </form>
 
-    
-
-           
-            </form>
           </div>
 
           {/* CHARTS */}
