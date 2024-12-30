@@ -6,11 +6,10 @@ import Sidebar from "../../../components/common/Sidebar";
 import Axios from "../../../Instance/Instance";
 
 const RequestPage = () => {
+//  vehicle numbers  
   const [vehicleList, setVehicleList] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [userData, setUserData] = useState("");
-
-  // State variables for form fields
   const [ownerName, setOwnerName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [vehicleYear, setVehicleYear] = useState("");
@@ -33,41 +32,43 @@ const RequestPage = () => {
     };
     fetchVehicleNumbers();
   }, []);
-
-useEffect(() => {
-  const userDataget = async () => {
-    try {
-      const response = await Axios.get("/user-details", {
-        params: { vehicleNumber: selectedVehicle }, // Pass as query params
-      });
-      console.log("User data retrieved:", response?.data);
-      if (response?.data?.message) {
-        setUserData(response.data.data); // Assuming `data` contains user data
-      } else {
-        console.log("No data found for the selected vehicle.");
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await Axios.get("/user-details", {
+          params: { vehicleNumber: selectedVehicle },
+        });
+        console.log("User data retrieved:", response?.data);
+        if (response?.data?.data) {
+          setUserData(response.data.data);
+          setOwnerName(response.data.data[0].name || "");
+          console.log(ownerName,'name');
+          setPhoneNumber(response.data.data[0].phone || "");
+          setVehicleYear(response.data.data[0].year || "");
+          setVehicleModel(response.data.data[0].model || "");
+          setKilometer(response.data.data[0].kilometer || "");
+          setSmoke(response.data.data[0].smoke || "");
+          setLhceDetails(response.data.data[0].lhceDetails || "");
+          setFuelType(response.data.data[0].fuelType || "");
+        } else {
+          console.log("No data found for the selected vehicle.");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
       }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
+    };
+
+    if (selectedVehicle) {
+      fetchUserData();
     }
-  };
-
-  if (selectedVehicle) {
-    userDataget();
-  }
-}, [selectedVehicle]);
-
-
-  // **********************************
-
+  }, [selectedVehicle]);
   const handleVehicleChange = (event) => {
     const vehicleNumber = event.target.value;
     setSelectedVehicle(vehicleNumber);
     console.log(vehicleNumber, "selected");
   };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     const formData = {
       vehicleNumber: selectedVehicle,
       ownerName,
@@ -79,28 +80,13 @@ useEffect(() => {
       smoke,
       lhceDetails
     };
-
     try {
       const response = await Axios.post("/cleint-bill", formData);
       console.log("Form submitted successfully:", response);
-      // Handle the response here, e.g., show a success message
     } catch (error) {
       console.error("Error submitting form:", error);
-      // Handle the error here, e.g., show an error message
     }
   };
-
-  // // Form fields definition
-  // const formFields = [
-  //   { id: "owner-name", label: "Owner Full Name", value: ownerName, setter: setOwnerName, type: "text" },
-  //   { id: "phone-number", label: "Phone Number", value: phoneNumber, setter: setPhoneNumber, type: "tel" },
-  //   { id: "vehicle-year", label: "Vehicle Year", value: vehicleYear, setter: setVehicleYear, type: "number" },
-  //   { id: "vehicle-model", label: "Vehicle Model", value: vehicleModel, setter: setVehicleModel, type: "text" },
-  //   { id: "kilometer", label: "Kilometer", value: kilometer, setter: setKilometer, type: "number" },
-  //   { id: "smoke", label: "Smoke", value: smoke, setter: setSmoke, type: "text" },
-  //   { id: "lhce-details", label: "LHCE Details", value: lhceDetails, setter: setLhceDetails, type: "text" },
-  // ];
-
   return (
     <>
       <Sidebar />
