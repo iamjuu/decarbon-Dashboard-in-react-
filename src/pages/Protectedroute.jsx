@@ -22,16 +22,9 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
     // Check if the user role is allowed
     if (allowedRoles && !allowedRoles.includes(decodedToken.role)) {
-      return (<>/
       
-      <div>({decodedToken.role})
-
-{allowedRoles.includes(decodedToken.role)}
-
-      </div>
-      </>)
-        
-        // return <Navigate to="/unauthorized" />;
+        console.log("hy")
+        return <Navigate to="/unauthorized" />;
     }
 
     // Token is valid and user role is allowed, render the child components
