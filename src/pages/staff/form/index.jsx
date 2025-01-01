@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../../components/common/Header";
-import CategoryDistributionChart from "../../../components/overview/CategoryDistributionChart";
-import SalesTrendChart from "../../../components/products/SalesTrendChart";
 import Sidebar from "../../../components/common/Sidebar";
 import Axios from "../../../Instance/Instance";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 const RequestPage = () => {
   const [vehicleList, setVehicleList] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState("");
-  const [userData, setUserData] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [vehicleYear, setVehicleYear] = useState("");
@@ -18,7 +15,10 @@ const RequestPage = () => {
   const [fuelType, setFuelType] = useState("petrol");
   const [smoke, setSmoke] = useState("");
   const [lhceDetails, setLhceDetails] = useState("");
+  const [discount, setDiscount] = useState(0); // New state for discount
+  const [services, setServices] = useState([{ service: "", amount: "" }]);
 
+  // Fetching vehicle numbers
   useEffect(() => {
     const fetchVehicleNumbers = async () => {
       try {
@@ -33,23 +33,23 @@ const RequestPage = () => {
     fetchVehicleNumbers();
   }, []);
 
+  // Fetching user details based on selected vehicle number
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const response = await Axios.get("/user-details", {
           params: { vehicleNumber: selectedVehicle },
         });
-        console.log("User data retrieved:", response?.data);
         if (response?.data?.data) {
-          setUserData(response.data.data);
-          setOwnerName(response.data.data[0].name || "");
-          setPhoneNumber(response.data.data[0].phone || "");
-          setVehicleYear(response.data.data[0].vehicleyear || "");
-          setVehicleModel(response.data.data[0].vehicleModel || "");
-          setKilometer(response.data.data[0].kilometer || "");
-          setSmoke(response.data.data[0].smoke || "");
-          setLhceDetails(response.data.data[0].lhceDetails || "");
-          setFuelType(response.data.data[0].fuelType || "");
+          const data = response.data.data[0];
+          setOwnerName(data.name || "");
+          setPhoneNumber(data.phone || "");
+          setVehicleYear(data.vehicleyear || "");
+          setVehicleModel(data.vehicleModel || "");
+          setKilometer(data.kilometer || "");
+          setSmoke(data.smoke || "");
+          setLhceDetails(data.lhceDetails || "");
+          setFuelType(data.fuelType || "");
         } else {
           console.log("No data found for the selected vehicle.");
         }
@@ -64,13 +64,37 @@ const RequestPage = () => {
   }, [selectedVehicle]);
 
   const handleVehicleChange = (event) => {
-    const vehicleNumber = event.target.value;
-    setSelectedVehicle(vehicleNumber);
-    console.log(vehicleNumber, "selected");
+    setSelectedVehicle(event.target.value);
+  };
+
+  const handleServiceChange = (index, field, value) => {
+    const updatedServices = [...services];
+    updatedServices[index][field] = value;
+    setServices(updatedServices);
+  };
+
+  const addServiceRow = () => {
+    setServices([...services, { service: "", amount: "" }]);
+  };
+
+  const removeServiceRow = () => {
+    setServices((prevServices) => {
+      if (prevServices.length > 1) {
+        return prevServices.slice(0, -1); // Creates a new array without mutating the original
+      }
+      return prevServices;
+    });
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Calculate total amount from services
+    const totalAmount = services.reduce(
+      (sum, service) => sum + parseFloat(service.amount || 0),
+      0
+    );
+
     const formData = {
       vehicleNumber: selectedVehicle,
       ownerName,
@@ -80,32 +104,46 @@ const RequestPage = () => {
       kilometer,
       fuelType,
       smoke,
-      lhceDetails
+      lhceDetails,
+      services: services.map((service) => ({
+        serviceType: service.service,
+        serviceAmount: parseFloat(service.amount || 0),
+      })),
+      discount: parseFloat(discount),
+      totalAmount: totalAmount - discount, // Apply discount
     };
 
     try {
-      const response = await Axios.post("/cleint-bill", formData);
-      console.log("Form submitted successfully:", response);
-      
-      // Show success sweet alert
-      await Swal.fire({
-        title: 'Success!',
-        text: 'Client bill has been saved successfully',
-        icon: 'success',
-        confirmButtonColor: '#3085d6',
-        confirmButtonText: 'OK'
+      await Axios.post("/client-bill", formData);
+
+      Swal.fire({
+        title: "Success!",
+        text: "Client bill has been saved successfully",
+        icon: "success",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "OK",
       });
 
+      // Reset the form state after successful submission
+      setSelectedVehicle("");
+      setOwnerName("");
+      setPhoneNumber("");
+      setVehicleYear("");
+      setVehicleModel("");
+      setKilometer("");
+      setFuelType("petrol");
+      setSmoke("");
+      setLhceDetails("");
+      setDiscount(0);
+      setServices([{ service: "", amount: "" }]);
+
     } catch (error) {
-      console.error("Error submitting form:", error);
-      
-      // Show error sweet alert
       Swal.fire({
-        title: 'Error!',
-        text: 'Failed to save client bill. Please try again.',
-        icon: 'error',
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'OK'
+        title: "Error!",
+        text: "Failed to save client bill. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+        confirmButtonText: "OK",
       });
     }
   };
@@ -117,9 +155,9 @@ const RequestPage = () => {
         <Header title="Client Bill Form" />
         <main className="max-w-7xl mx-auto py-6 px-4 lg:px-8">
           <div className="max-w-xl mx-auto mb-5 bg-gray-800 text-white p-6 rounded-lg shadow-lg">
-            <div className="flex justify-between">
-              <h2 className="text-2xl font-bold mb-6 text-center">Client Bill Form</h2>
-              <div className="flex flex-col">
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              {/* Vehicle Select */}
+              <div>
                 <label htmlFor="vehicle-select">Select Vehicle Number:</label>
                 <select
                   id="vehicle-select"
@@ -129,156 +167,196 @@ const RequestPage = () => {
                 >
                   <option value="">Choose the number</option>
                   {vehicleList.map((item, index) => (
-                    <option key={index} value={item}>{item}</option>
+                    <option key={index} value={item}>
+                      {item}
+                    </option>
                   ))}
                 </select>
               </div>
-            </div>
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
-  <div>
-    <label className="block text-sm font-medium mb-2" htmlFor="owner-name">
-      Owner Full Name
-    </label>
-    <input
-      type="text"
-      id="owner-name"
-      value={ownerName}
-      onChange={(e) => setOwnerName(e.target.value)}
-      placeholder="Enter owner full name"
-      className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
-      required
-    />
-  </div>
+              {/* Owner Name */}
+              <div>
+                <label htmlFor="owner-name">Owner Full Name</label>
+                <input
+                  type="text"
+                  id="owner-name"
+                  value={ownerName}
+                  onChange={(e) => setOwnerName(e.target.value)}
+                  placeholder="Enter owner full name"
+                  className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+                  required
+                />
+              </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-2" htmlFor="phone-number">
-      Phone Number
-    </label>
-    <input
-      type="tel"
-      id="phone-number"
-      value={phoneNumber}
-      onChange={(e) => setPhoneNumber(e.target.value)}
-      placeholder="Enter phone number"
-      className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
-      required
-    />
-  </div>
+              {/* Phone Number */}
+              <div>
+                <label htmlFor="phone-number">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone-number"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="Enter phone number"
+                  className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+                  required
+                />
+              </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-2" htmlFor="vehicle-year">
-      Vehicle Year
-    </label>
-    <input
-      type="number"
-      id="vehicle-year"
-      value={vehicleYear}
-      onChange={(e) => setVehicleYear(e.target.value)}
-      placeholder="Enter vehicle year"
-      className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
-      required
-    />
-  </div>
+              {/* Vehicle Year */}
+              <div>
+                <label htmlFor="vehicle-year">Vehicle Year</label>
+                <input
+                  type="number"
+                  id="vehicle-year"
+                  value={vehicleYear}
+                  onChange={(e) => setVehicleYear(e.target.value)}
+                  placeholder="Enter vehicle year"
+                  className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+                  required
+                />
+              </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-2" htmlFor="vehicle-model">
-      Vehicle Model
-    </label>
-    <input
-      type="text"
-      id="vehicle-model"
-      value={vehicleModel}
-      onChange={(e) => setVehicleModel(e.target.value)}
-      placeholder="Enter vehicle model"
-      className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
-      required
-    />
-  </div>
+              {/* Vehicle Model */}
+              <div>
+                <label htmlFor="vehicle-model">Vehicle Model</label>
+                <input
+                  type="text"
+                  id="vehicle-model"
+                  value={vehicleModel}
+                  onChange={(e) => setVehicleModel(e.target.value)}
+                  placeholder="Enter vehicle model"
+                  className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+                  required
+                />
+              </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-2" htmlFor="kilometer">
-      Kilometer
-    </label>
-    <input
-      type="number"
-      id="kilometer"
-      value={kilometer}
-      onChange={(e) => setKilometer(e.target.value)}
-      placeholder="Enter kilometer"
-      className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
-      required
-    />
-  </div>
+              {/* Kilometer */}
+              <div>
+                <label htmlFor="kilometer">Kilometer</label>
+                <input
+                  type="number"
+                  id="kilometer"
+                  value={kilometer}
+                  onChange={(e) => setKilometer(e.target.value)}
+                  placeholder="Enter kilometer"
+                  className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+                  required
+                />
+              </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-2" htmlFor="smoke">
-      Smoke
-    </label>
-    <input
-      type="text"
-      id="smoke"
-      value={smoke}
-      onChange={(e) => setSmoke(e.target.value)}
-      placeholder="Enter smoke information"
-      className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
-      required
-    />
-  </div>
+              {/* Smoke */}
+              <div>
+                <label htmlFor="smoke">Smoke</label>
+                <input
+                  type="text"
+                  id="smoke"
+                  value={smoke}
+                  onChange={(e) => setSmoke(e.target.value)}
+                  placeholder="Enter smoke information"
+                  className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+                  required
+                />
+              </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-2" htmlFor="lhce-details">
-      LHCE Details
-    </label>
-    <input
-      type="text"
-      id="lhce-details"
-      value={lhceDetails}
-      onChange={(e) => setLhceDetails(e.target.value)}
-      placeholder="Enter LHCE details"
-      className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
-      required
-    />
-  </div>
+              {/* LHCE Details */}
+              <div>
+                <label htmlFor="lhce-details">LHCE Details</label>
+                <input
+                  type="text"
+                  id="lhce-details"
+                  value={lhceDetails}
+                  onChange={(e) => setLhceDetails(e.target.value)}
+                  placeholder="Enter LHCE details"
+                  className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+                  required
+                />
+              </div>
 
-  <div>
-    <label className="block text-sm font-medium mb-2" htmlFor="fuel">
-      Fuel Type
-    </label>
-    <select
-      id="fuel"
-      value={fuelType}
-      onChange={(e) => setFuelType(e.target.value)}
-      className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
-      required
-    >
-      <option value="">Select fuel type</option>
-      <option value="petrol">Petrol</option>
-      <option value="diesel">Diesel</option>
-    </select>
-  </div>
+              {/* Fuel Type */}
+              <div>
+                <label htmlFor="fuel">Fuel Type</label>
+                <select
+                  id="fuel"
+                  value={fuelType}
+                  onChange={(e) => setFuelType(e.target.value)}
+                  className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select fuel type</option>
+                  <option value="petrol">Petrol</option>
+                  <option value="diesel">Diesel</option>
+                </select>
+              </div>
 
-  <div className="text-center">
-    <button
-      type="submit"
-      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-300"
-    >
-      Submit
-    </button>
-  </div>
-</form>
+              {/* Services and Amount */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold mb-4">Service and Amount</h3>
+                {services.map((row, index) => (
+                  <div key={index} className="grid grid-cols-2 gap-4 items-center">
+                    <input
+                      type="text"
+                      placeholder="Service"
+                      value={row.service}
+                      onChange={(e) => handleServiceChange(index, "service", e.target.value)}
+                      className="p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+                      required
+                    />
+                    <input
+                      type="number"
+                      placeholder="Amount"
+                      value={row.amount}
+                      onChange={(e) => handleServiceChange(index, "amount", e.target.value)}
+                      className="p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addServiceRow}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg transition-all duration-300"
+                >
+                  + Add Service
+                </button>
+                {services.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={removeServiceRow}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-lg transition-all duration-300"
+                  >
+                    - Remove Service
+                  </button>
+                )}
+              </div>
 
-          </div>
+              {/* Discount */}
+              <div>
+                <label htmlFor="discount">Discount</label>
+                <input
+                  type="number"
+                  id="discount"
+                  value={discount}
+                  onChange={(e) => setDiscount(e.target.value)}
+                  placeholder="Enter discount percentage"
+                  className="w-full p-3 border rounded-lg bg-gray-900 text-white focus:ring focus:ring-blue-500"
+                />
+              </div>
 
-          {/* CHARTS */}
-          <div className="grid grid-col-1 lg:grid-cols-2 gap-8">
-            <SalesTrendChart />
-            <CategoryDistributionChart />
+              {/* Submit Button */}
+              <div className="text-center">
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-300"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
           </div>
         </main>
       </div>
     </>
   );
-};
+}
 
 export default RequestPage;
