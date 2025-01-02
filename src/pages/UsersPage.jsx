@@ -8,8 +8,10 @@ import UserGrowthChart from "../components/users/UserGrowthChart";
 import UserActivityHeatmap from "../components/users/UserActivityHeatmap";
 import UserDemographicsChart from "../components/users/UserDemographicsChart";
 import { utils, writeFile } from "xlsx"; // Importing xlsx library
-import { useEffect, useState } from "react";
-import Axios from '../Instance/Instance'
+import { useEffect, useState, useCallback } from "react";
+import Axios from '../Instance/Instance';
+import { format } from 'date-fns'; // Import date-fns for date formatting
+
 const userStats = {
   totalUsers: 243,
   totalServices: 243,
@@ -17,61 +19,59 @@ const userStats = {
   totalprofit: 10000,
 };
 
-const userData = [
-  {
-    id: 1,
-    name: "Muhammed Ajmal CC",
-    phone: "7025715250",
-    vehicleType: "Bike",
-    vehiclenumber: "KL 13 AQ 1596",
-    itemsname: "Pulser",
-    Quantity: "1",
-    Price: "2118.64",
-    Discount: "83.158%",
-    Gst: "64.24(18.0%)",
-    Amount: "4210",
-  },
-  {
-    id: 1,
-    name: "Muhammed  CC",
-    phone: "7025715250",
-    vehicleType: "Bike",
-    vehiclenumber: "KL 13 AQ 1596",
-    itemsname: "Pulser",
-    Quantity: "1",
-    Price: "2118.64",
-    Discount: "83.158%",
-    Gst: "64.24(18.0%)",
-    Amount: "4210",
-  },
-];
-
 const UsersPage = () => {
-  const [userList,setUserList] = useState('')
+  const [userList, setUserList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const exportToExcel = () => {
-    const ws = utils.json_to_sheet(userData); 
-    const wb = utils.book_new(); 
-    utils.book_append_sheet(wb, ws, "Users");
-    writeFile(wb, "users_data.xlsx"); 
-  };
+  const exportToExcel = useCallback(() => {
+    // Format the data
+    const formattedUserList = userList.map((user, index) => {
+      // Destructure the user object and exclude the _id field and other unnecessary fields
+      const { __v, _id, createdAt, services, discount, ...userData } = user;
+      
+      // Format the "billed" field (createdAt) and change time format to AM/PM
+      const billed = createdAt ? format(new Date(createdAt), 'MM/dd/yyyy hh:mm a') : '';
+
+      // Flatten the services array into a string of serviceType: serviceAmount (e.g., 'machine: 500, cycle: 100')
+      const servicesList = services ? services.map(service => `${service.serviceType}: ${service.serviceAmount}`).join(', ') : '';
+
+      // Adding an index for the user (1, 2, 3, ...)
+      return {
+        index: index + 1, // Adding the index (starts from 1)
+        ...userData,
+        billed,       // Renamed field
+        services: servicesList, // Flattened services
+        discount,      // Include discount field in the export
+      };
+    });
+
+    // Create a worksheet from the formatted data
+    const ws = utils.json_to_sheet(formattedUserList);
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, ws, 'Users');
+
+    // Export to Excel
+    writeFile(wb, 'users_data.xlsx');
+  }, [userList]);
 
   useEffect(() => {
     const userGet = async () => {
       try {
+        setLoading(true);
         const response = await Axios.get('/users');
         if (response.status === 200) {
-          console.log(response.data, 'data got');
-          setUserList(response.data.user); 
+          setUserList(response.data.user);
         }
       } catch (error) {
-        console.log(error, 'error in users path');
+        console.error('Error fetching users:', error);
+        setError('Failed to load user data.');
+      } finally {
+        setLoading(false);
       }
     };
     userGet();
   }, []);
-  
-
 
   return (
     <>
@@ -113,12 +113,24 @@ const UsersPage = () => {
             />
           </motion.div>
 
-          <UsersTable userData={userData} />
+          {/* Users Table */}
+          {loading ? (
+            <div className="text-center text-gray-300">Loading...</div>
+          ) : error ? (
+            <div className="text-center text-red-500">{error}</div>
+          ) : (
+            <UsersTable userData={userList} />
+          )}
 
           {/* Button to export data to Excel */}
           <button
             onClick={exportToExcel} // Trigger the export function on click
-            className="px-6 py-3 mt-5 border-2 border-blue-500 text-sm text-white font-bold rounded-full shadow-lg bg-transparent hover:bg-blue-500 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-offset-2"
+            disabled={loading || !userList.length}
+            className={`px-6 py-3 mt-5 border-2 border-blue-500 text-sm text-white font-bold rounded-full shadow-lg bg-transparent ${
+              loading || !userList.length
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-blue-500 hover:text-white"
+            } focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-offset-2`}
           >
             Convert to XL sheet
           </button>

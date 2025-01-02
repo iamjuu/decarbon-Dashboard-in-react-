@@ -2,9 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 
-
-
-const UsersTable = ({userData}) => {
+const UsersTable = ({ userData }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState(userData);
 
@@ -13,9 +11,9 @@ const UsersTable = ({userData}) => {
     setSearchTerm(term);
     const filtered = userData.filter(
       (user) =>
-        user.name.toLowerCase().includes(term) ||
-        user.phone.includes(term) ||
-        user.vehicleType.toLowerCase().includes(term)
+        user.ownerName.toLowerCase().includes(term) || // Search by owner name
+        user.phoneNumber.toString().includes(term) || // Search by phone number
+        user.vehicleModel.toLowerCase().includes(term) // Search by vehicle model
     );
     setFilteredUsers(filtered);
   };
@@ -45,67 +43,52 @@ const UsersTable = ({userData}) => {
         <table className="min-w-full divide-y divide-gray-700">
           <thead>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Owner Name</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Phone</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Vehicle Type</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Vehicle Model</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Vehicle Number</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Vehicle Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Quantity</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Price</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Year</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Kilometers</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Fuel Type</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Discount</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Gst</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Amount</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Total Amount</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-700">
             {filteredUsers.map((user) => (
               <motion.tr
-                key={user.id}
+                key={user._id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
                 className="hover:bg-gray-700 cursor-pointer"
               >
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-400 to-blue-500 flex items-center justify-center text-white font-semibold">
-                        {user.name.charAt(0)}
-                      </div>
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-100">{user.name}</div>
-                    </div>
-                  </div>
+                  <div className="text-sm font-medium text-gray-100">{user.ownerName}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm font-medium text-gray-300">{user.phone}</span>
+                  <span className="text-sm font-medium text-gray-300">{user.phoneNumber}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold text-red-400">
-                    {user.vehicleType}
-                  </span>
+                  <span className="text-sm font-medium text-gray-300">{user.vehicleModel}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm font-medium text-gray-300">{user.vehiclenumber}</span>
+                  <span className="text-sm font-medium text-gray-300">{user.vehicleNumber}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm font-medium text-gray-300">{user.itemsname}</span>
+                  <span className="text-sm font-medium text-gray-300">{user.vehicleYear}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm font-medium text-gray-300">{user.Quantity}</span>
+                  <span className="text-sm font-medium text-gray-300">{user.kilometer}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm font-medium text-gray-300">{user.Price}</span>
+                  <span className="text-sm font-medium text-gray-300">{user.fuelType}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm font-medium text-gray-300">{user.Discount}</span>
+                  <span className="text-sm font-medium text-gray-300">{user.discount}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm font-medium text-gray-300">{user.Gst}</span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm font-medium text-gray-300">{user.Amount}</span>
+                  <span className="text-sm font-medium text-gray-300">{user.totalAmount}</span>
                 </td>
               </motion.tr>
             ))}
