@@ -6,16 +6,20 @@ import StatCard from "../components/common/StatCard";
 import SalesOverviewChart from "../components/overview/SalesOverviewChart";
 import CategoryDistributionChart from "../components/overview/CategoryDistributionChart";
 import SalesChannelChart from "../components/overview/SalesChannelChart";
+import { jwtDecode } from 'jwt-decode';
 
 const OverviewPage = () => {
 
+const token = localStorage.getItem("token")
+const decodedToken = jwtDecode(token);
+const role = decodedToken.role
 
-	
 	return (
 		<>
-		
 		<Sidebar/>
 		<div className='flex-1 overflow-auto relative z-10'>
+		{role=="Admin" ?(
+			<> 
 			<Header title='Overview' />
 
 			<main className='max-w-7xl mx-auto py-6 px-4 lg:px-8'>
@@ -39,7 +43,15 @@ const OverviewPage = () => {
 					<SalesChannelChart />
 				</div>
 			</main>
-		</div>
+		
+		</> ):(
+			<div className="flex items-center justify-center h-screen">
+ <h1 className="text-2xl font-semibold text-red-900">Welcome to the Dashboard .</h1>
+</div>)
+
+}
+
+</div>
 		</>
 	);
 };
