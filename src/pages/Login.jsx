@@ -1,13 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Axios from './../Instance/Instance';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import {jwtDecode} from 'jwt-decode'; // Corrected import
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
+  // useEffect to check existing token on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+
+        if (decodedToken.exp * 1000 > Date.now()) {
+          // Token is valid, navigate to the home page
+          navigate('/');
+        } else {
+          // Token is expired, remove it from localStorage
+          localStorage.removeItem('token');
+          Swal.fire({
+            icon: 'info',
+            title: 'Session Expired',
+            text: 'Please log in again.',
+          });
+        }
+      } catch (error) {
+        // Handle errors during token decoding
+        localStorage.removeItem('token');
+        console.error('Error decoding token:', error);
+      }
+    }
+  }, []); // Dependency on navigate
+
+  // Handle form submission
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -24,12 +54,11 @@ const Login = () => {
         navigate('/'); // Redirect to the home page
       }
     } catch (error) {
-     
-      
+      // Handle errors gracefully
       Swal.fire({
         icon: 'error',
-        title:"Error",
-        text: error.response ? error.response.data.message : 'An error occurred',
+        title: 'Error',
+        text: error.response?.data?.message || 'An error occurred. Please try again.',
       });
     }
   };
