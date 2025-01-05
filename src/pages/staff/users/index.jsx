@@ -3,36 +3,7 @@ import { motion } from "framer-motion";
 import styled, { createGlobalStyle } from 'styled-components';
 import LeftSideBar from '../home/LeftSideBar';
 
-// Sample user data (same as before)
-const userData = [
-  {
-    id: 1,
-    name: "Muhammed Ajmal CC",
-    phone: "7025715250",
-    vehicleType: "Bike",
-    vehiclenumber: "KL 13 AQ 1596",
-    itemsname: "Pulser",
-    Quantity: "1",
-    Price: "2118.64",
-    Discount: "83.158%",
-    Gst: "64.24(18.0%)",
-    Amount: "4210",
-  },
-  {
-    id: 2,
-    name: "John Doe",
-    phone: "9876543210",
-    vehicleType: "Car",
-    vehiclenumber: "KL 12 AB 1234",
-    itemsname: "Honda Civic",
-    Quantity: "2",
-    Price: "12000",
-    Discount: "10%",
-    Gst: "300(18.0%)",
-    Amount: "24000",
-  },
-  // Add more users here...
-];
+
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");

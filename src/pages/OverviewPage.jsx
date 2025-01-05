@@ -44,10 +44,12 @@ const role = decodedToken.role
 				</div>
 			</main>
 		
-		</> ):(
+		</> ):(<>
+				<Header title='User Dashboard' />
 			<div className="flex items-center justify-center h-screen">
  <h1 className="text-2xl font-semibold text-red-900">Welcome to the Dashboard .</h1>
-</div>)
+</div>
+</>)
 
 }
 
