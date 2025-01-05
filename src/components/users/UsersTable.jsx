@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 import axios from "./../../Instance/Instance"; // Import Axios
 import Swal from 'sweetalert2'; // Import SweetAlert2
 
-const UsersTable = ({ userData }) => {
+const UsersTable = ({ userData ,onDelete }) => {
   const [searchTerm, setSearchTerm] = useState(""); // Vehicle number search term
   const [fromDate, setFromDate] = useState(""); // Start date for the range
   const [toDate, setToDate] = useState(""); // End date for the range
@@ -95,7 +95,9 @@ const UsersTable = ({ userData }) => {
           await axios.delete(`/delete-vehicle/${userId}`);
           Swal.fire('Deleted!', 'This bill  has been deleted.', 'success');
           // Reload the user data after successful deletion
-          setFilteredUsers(filteredUsers.filter(user => user._id !== userId));
+          onDelete(userId);
+          setFilteredUsers((prev) => prev.filter((user) => user._id !== userId));
+         
         } catch (error) {
           console.error('Error deleting user:', error);
           Swal.fire('Error!', 'There was an error deleting the vehicle.', 'error');

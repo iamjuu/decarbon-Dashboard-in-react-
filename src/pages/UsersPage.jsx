@@ -72,6 +72,9 @@ const UsersPage = () => {
     };
     userGet();
   }, []);
+  const handleUserDeletion = (deletedUserId) => {
+    setUserList((prevList) => prevList.filter((user) => user._id !== deletedUserId));
+  };
 
   return (
     <>
@@ -119,7 +122,7 @@ const UsersPage = () => {
           ) : error ? (
             <div className="text-center text-red-500">{error}</div>
           ) : (
-            <UsersTable userData={userList} />
+            <UsersTable userData={userList} onDelete={handleUserDeletion} />
           )}
 
           {/* Button to export data to Excel */}

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Axios from './../Instance/Instance';
+import Axios from 'axios';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import {jwtDecode} from 'jwt-decode'; // Corrected import
+import {jwtDecode} from 'jwt-decode'; 
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -43,14 +43,15 @@ const Login = () => {
 
     try {
       // Make the login request to the backend API
-      const response = await Axios.post('/login', {
+      const response = await Axios.post('http://localhost:7000/login', {
         email,
         password,
       });
 
       // If the login is successful, store the token and redirect
       if (response.data.token) {
-        localStorage.setItem('token', response.data.token); // Store the token in localStorage
+    localStorage.setItem('token', response.data.token); // Store the token in localStorage
+    console.log("token set")
         navigate('/'); // Redirect to the home page
       }
     } catch (error) {
@@ -66,7 +67,10 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-gray-100 px-4">
       <div className="max-w-md w-full bg-gray-800 p-8 rounded-lg shadow-lg">
-        <h2 className="text-center text-2xl font-bold mb-6">Login</h2>
+      <h2 className="text-center text-2xl font-bold mb-6">
+  <p className='inline text-red-500'>Nso2</p>{' '}Login
+</h2>
+
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
             <label htmlFor="email" className="block mb-2 font-medium">
@@ -109,10 +113,7 @@ const Login = () => {
         </form>
         <div className="text-center mt-6">
           <p>
-            Don't have an account?{' '}
-            <a href="/register" className="text-blue-400 hover:text-blue-500">
-              Sign Up
-            </a>
+            
           </p>
         </div>
       </div>
