@@ -56,6 +56,8 @@ const UsersPage = () => {
   }, [userList]);
 
   useEffect(() => {
+
+
     const userGet = async () => {
       try {
         setLoading(true);
@@ -91,13 +93,13 @@ const UsersPage = () => {
             transition={{ duration: 1 }}
           >
             <StatCard
-              name="Total Users"
+              name="Total services"
               icon={UsersIcon}
               value={userStats.totalUsers.toLocaleString()}
               color="#6366F1"
             />
             <StatCard
-              name="Total Services"
+              name="Pending Bills"
               icon={UserPlus}
               value={userStats.totalServices}
               color="#b91010"
@@ -109,7 +111,7 @@ const UsersPage = () => {
               color="#F59E0B"
             />
             <StatCard
-              name="Total profit"
+              name="Total Income"
               icon={DollarSign}
               value={userStats.totalprofit}
               color="#10B981"
