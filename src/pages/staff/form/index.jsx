@@ -22,7 +22,7 @@ const RequestPage = () => {
   useEffect(() => {
     const fetchVehicleNumbers = async () => {
       try {
-        const response = await Axios.get("/vehiclenuumber");
+        const response = await Axios.get("/vehiclenumber");
         if (response?.data) {
           setVehicleList(response.data);
         }
@@ -42,11 +42,17 @@ const RequestPage = () => {
         });
         if (response?.data?.data) {
           const data = response.data.data[0];
+          const toBillObject = data.details.find(detail => detail.status === "tobill")
           setOwnerName(data.name || "");
           setPhoneNumber(data.phone || "");
           setVehicleYear(data.vehicleyear || "");
           setVehicleModel(data.vehicleModel || "");
-          setKilometer(data.kilometer || "");
+
+
+
+          setKilometer(toBillObject.kilometer||"");
+
+
           setSmoke(data.smoke || "");
           setLhceDetails(data.lhceDetails || "");
           setFuelType(data.fuelType || "");
@@ -122,20 +128,23 @@ const RequestPage = () => {
         icon: "success",
         confirmButtonColor: "#3085d6",
         confirmButtonText: "OK",
+      }).then(() => {
+        
+        setSelectedVehicle("");
+        setOwnerName("");
+        setPhoneNumber("");
+        setVehicleYear("");
+        setVehicleModel("");
+        setKilometer("");
+        setFuelType("petrol");
+        setSmoke("");
+        setLhceDetails("");
+        setDiscount(0);
+        setServices([{ service: "", amount: "" }]);
+        window.location.reload();
       });
 
       // Reset the form state after successful submission
-      setSelectedVehicle("");
-      setOwnerName("");
-      setPhoneNumber("");
-      setVehicleYear("");
-      setVehicleModel("");
-      setKilometer("");
-      setFuelType("petrol");
-      setSmoke("");
-      setLhceDetails("");
-      setDiscount(0);
-      setServices([{ service: "", amount: "" }]);
 
     } catch (error) {
       Swal.fire({

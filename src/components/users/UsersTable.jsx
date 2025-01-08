@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import axios from "./../../Instance/Instance"; // Import Axios
 import Swal from 'sweetalert2'; // Import SweetAlert2
+import { MdDelete } from "react-icons/md";
+
 
 const UsersTable = ({ userData ,onDelete }) => {
   const [searchTerm, setSearchTerm] = useState(""); // Vehicle number search term
@@ -206,7 +208,7 @@ const UsersTable = ({ userData ,onDelete }) => {
                   Kilometers
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  Fuel Type
+                  Service Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                   Discount
@@ -260,11 +262,17 @@ const UsersTable = ({ userData ,onDelete }) => {
                       {user.kilometer}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-medium text-gray-300">
-                      {user.fuelType}
-                    </span>
-                  </td>
+                  <td
+  className={`px-6 py-4 whitespace-nowrap border border-black ${
+    user.servicestatus === "Serviced"
+      ? "bg-green-500 text-white font-bold"
+      : user.servicestatus === "Rejected"
+      ? "bg-red-500 text-white font-bold"
+      : "bg-gray-300 text-gray-800"
+  }`}
+>
+  <span className="text-sm font-medium">{user.servicestatus}</span>
+</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm font-medium text-gray-300">
                       {user.discount}
@@ -276,12 +284,12 @@ const UsersTable = ({ userData ,onDelete }) => {
                     </span>
                   </td>
                   {isAdmin && (
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300 ">
                       <button
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800" 
                         onClick={() => handleDelete(user._id)}
                       >
-                        Delete
+                       delete
                       </button>
                     </td>
                   )}

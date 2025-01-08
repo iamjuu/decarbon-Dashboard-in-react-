@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import ProtectedRoute from "./pages/Protectedroute";
 import "./App.css";
 import NotFound from "./pages/Notfound";
+import Allregistration from "./pages/AllRegistration";
 function App() {
   return (
     <>
@@ -17,7 +18,7 @@ function App() {
         <Route path="/unauthorized" element={<NotFound />} />
       </Routes>
 
-      <div className="  flex  bg-gray-900 text-gray-100  ">
+      <div className="  flex  bg-gray-900 text-gray-100 h-screen  ">
         <Routes>
           <Route
             path="/"
@@ -59,6 +60,19 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/registrations"
+            element={
+              <ProtectedRoute allowedRoles={["Admin", "User"]}>
+                <Allregistration />
+              </ProtectedRoute>
+            }
+          />
+
+
+
+
+          
         </Routes>
       </div>
     </>

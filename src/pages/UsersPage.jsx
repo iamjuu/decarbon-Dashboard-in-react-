@@ -10,7 +10,11 @@ import UserDemographicsChart from "../components/users/UserDemographicsChart";
 import { utils, writeFile } from "xlsx"; // Importing xlsx library
 import { useEffect, useState, useCallback } from "react";
 import Axios from '../Instance/Instance';
-import { format } from 'date-fns'; // Import date-fns for date formatting
+import { format } from 'date-fns'; // 
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+
+
 
 const userStats = {
   totalUsers: 243,
@@ -24,38 +28,106 @@ const UsersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const exportToExcel = useCallback(() => {
-    // Format the data
-    const formattedUserList = userList.map((user, index) => {
-      // Destructure the user object and exclude the _id field and other unnecessary fields
-      const { __v, _id, createdAt, services, discount, ...userData } = user;
-      
-      // Format the "billed" field (createdAt) and change time format to AM/PM
-      const billed = createdAt ? format(new Date(createdAt), 'MM/dd/yyyy hh:mm a') : '';
+  
+const exportToExcel = useCallback(() => {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Users');
 
-      // Flatten the services array into a string of serviceType: serviceAmount (e.g., 'machine: 500, cycle: 100')
-      const servicesList = services ? services.map(service => `${service.serviceType}: ${service.serviceAmount}`).join(', ') : '';
+  // Define columns
+  worksheet.columns = [
+    { header: 'Index', key: 'index', width: 10 },
+    { header: 'Vehicle Number', key: 'vehicleNumber', width: 20 },
+    { header: 'Owner Name', key: 'ownerName', width: 20 },
+    { header: 'Phone Number', key: 'phoneNumber', width: 15 },
+    { header: 'Vehicle Year', key: 'vehicleYear', width: 15 },
+    { header: 'Vehicle Model', key: 'vehicleModel', width: 20 },
+    { header: 'Kilometer', key: 'kilometer', width: 10 },
+    { header: 'Fuel Type', key: 'fuelType', width: 10 },
+    { header: 'Smoke', key: 'smoke', width: 10 },
+    { header: 'LHCE Details', key: 'lhceDetails', width: 15 },
+    { header: 'Service Status', key: 'serviceStatus', width: 15 },
+    { header: 'Reason', key: 'reason', width: 20 },
+    { header: 'Services', key: 'services', width: 40 },
+    { header: 'Discount', key: 'discount', width: 10 },
+    { header: 'Total Amount', key: 'totalAmount', width: 15 },
+    { header: 'Billed', key: 'billed', width: 20 },
+  ];
 
-      // Adding an index for the user (1, 2, 3, ...)
-      return {
-        index: index + 1, // Adding the index (starts from 1)
-        ...userData,
-        billed,       // Renamed field
-        services: servicesList, // Flattened services
-        discount,      // Include discount field in the export
+  // Add rows
+  const formattedUserList = userList.map((user, index) => {
+    const { createdAt, servicestatus: serviceStatus, services, ...rest } = user;
+
+    const billed = createdAt ? format(new Date(createdAt), 'MM/dd/yyyy hh:mm a') : '';
+    const servicesList = services
+      ? services.map(service => `${service.serviceType}: ${service.serviceAmount}`).join(', ')
+      : '';
+
+    return {
+      index: index + 1,
+      vehicleNumber: user.vehicleNumber || '',
+      ownerName: user.ownerName || '',
+      phoneNumber: user.phoneNumber || '',
+      vehicleYear: user.vehicleYear || '',
+      vehicleModel: user.vehicleModel || '',
+      kilometer: user.kilometer || '',
+      fuelType: user.fuelType || '',
+      smoke: user.smoke || '',
+      lhceDetails: user.lhceDetails || '',
+      serviceStatus,
+      reason: user.reason || '',
+      services: servicesList,
+      discount: user.discount || '',
+      totalAmount: user.totalAmount || '',
+      billed,
+    };
+  });
+
+  formattedUserList.forEach(data => {
+    const row = worksheet.addRow(data);
+  
+    // Apply conditional formatting with darker colors, bold text, and borders
+    const serviceStatusCell = row.getCell('serviceStatus');
+  
+    // Set the font to bold and the color to white for contrast
+    serviceStatusCell.font = {
+      color: { argb: 'FFFFFF' },  // White text for contrast
+      bold: true,                 // Bold text
+    };
+  
+    // Apply borders to the cell
+    serviceStatusCell.border = {
+      top: { style: 'thin', color: { argb: '000000' } },    // Black top border
+      left: { style: 'thin', color: { argb: '000000' } },   // Black left border
+      bottom: { style: 'thin', color: { argb: '000000' } }, // Black bottom border
+      right: { style: 'thin', color: { argb: '000000' } },  // Black right border
+    };
+  
+    // Apply conditional background color and font color based on service status
+    if (data.serviceStatus === 'Serviced') {
+      serviceStatusCell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '006400' }, // Dark Green
       };
-    });
+    } else if (data.serviceStatus === 'Rejected') {
+      serviceStatusCell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '8B0000' }, // Dark Red
+      };
+    }
+  });
+  
+  
 
-    // Create a worksheet from the formatted data
-    const ws = utils.json_to_sheet(formattedUserList);
-    const wb = utils.book_new();
-    utils.book_append_sheet(wb, ws, 'Users');
-
-    // Export to Excel
-    writeFile(wb, 'users_data.xlsx');
-  }, [userList]);
-
+  // Export the file
+  workbook.xlsx.writeBuffer().then(buffer => {
+    saveAs(new Blob([buffer]), 'users_data.xlsx');
+  });
+}, [userList]);
   useEffect(() => {
+
+
     const userGet = async () => {
       try {
         setLoading(true);
@@ -91,13 +163,13 @@ const UsersPage = () => {
             transition={{ duration: 1 }}
           >
             <StatCard
-              name="Total Users"
+              name="Total services"
               icon={UsersIcon}
               value={userStats.totalUsers.toLocaleString()}
               color="#6366F1"
             />
             <StatCard
-              name="Total Services"
+              name="Pending Bills"
               icon={UserPlus}
               value={userStats.totalServices}
               color="#b91010"
@@ -109,7 +181,7 @@ const UsersPage = () => {
               color="#F59E0B"
             />
             <StatCard
-              name="Total profit"
+              name="Total Income"
               icon={DollarSign}
               value={userStats.totalprofit}
               color="#10B981"
