@@ -5,12 +5,13 @@ import axios from "./../../Instance/Instance"; // Import Axios
 import Swal from 'sweetalert2'; // Import SweetAlert2
 import { MdDelete } from "react-icons/md";
 
-
-const UsersTable = ({ userData ,onDelete }) => {
+const UsersTable = ({ userData, onDelete }) => {
   const [searchTerm, setSearchTerm] = useState(""); // Vehicle number search term
   const [fromDate, setFromDate] = useState(""); // Start date for the range
   const [toDate, setToDate] = useState(""); // End date for the range
+  const [selectedServiceType, setSelectedServiceType] = useState("Serviced"); // Dropdown value for service type
   const [filteredUsers, setFilteredUsers] = useState([]); // Initialize as empty array
+  const [initialUserData, setInitialUserData] = useState([]); // Store initial user data for reset
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const itemsPerPage = 10; // Set the number of items per page
   const [isLoading, setIsLoading] = useState(false);
@@ -18,8 +19,8 @@ const UsersTable = ({ userData ,onDelete }) => {
 
   // Initialize filteredUsers with userData when component mounts or userData changes
   useEffect(() => {
-    setFilteredUsers(Array.isArray(userData) ? userData : []); // Ensure it's an array
-
+    setInitialUserData(userData || []); // Store the initial userData
+    setFilteredUsers(userData || []); // Initialize filtered users
     // Check if the user is an admin (role is stored in localStorage)
     const userToken = localStorage.getItem("token"); // Assuming token contains user data
     if (userToken) {
@@ -33,12 +34,12 @@ const UsersTable = ({ userData ,onDelete }) => {
     const term = searchTerm.toUpperCase(); // Capitalize search term
 
     if (term === "") {
-      setFilteredUsers(userData || []); // Reset to userData if search term is empty
+      setFilteredUsers(initialUserData || []); // Reset to initialUserData if search term is empty
     } else {
       try {
         setIsLoading(true);
-        const response = await axios.get("vehicle-search", {
-          params: { vehicleNumber: term },
+        const response = await axios.get("/vehicle-search", {
+          params: { vehicleNumber: term ,serviceType: selectedServiceType },
         });
         setFilteredUsers(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
@@ -60,11 +61,31 @@ const UsersTable = ({ userData ,onDelete }) => {
     try {
       setIsLoading(true);
       const response = await axios.get("/date-search", {
-        params: { fromDate, toDate },
+        params: { fromDate, toDate , serviceType: selectedServiceType },
       });
       setFilteredUsers(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Error fetching data by date range:", error);
+      setFilteredUsers([]); // Clear filtered users on error
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle dropdown change (service type)
+  const handleDropdownChange = async (event) => {
+    const selectedType = event.target.value;
+    setSelectedServiceType(selectedType);
+    // Fetch new data based on the selected service type
+    try {
+      setIsLoading(true);
+      const response = await axios.get("/filter-by-service", {
+        params: { serviceType: selectedType },
+      });
+      console.log(response)
+      setFilteredUsers(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Error fetching vehicle data by service type:", error);
       setFilteredUsers([]); // Clear filtered users on error
     } finally {
       setIsLoading(false);
@@ -76,7 +97,8 @@ const UsersTable = ({ userData ,onDelete }) => {
     setSearchTerm(""); // Clear vehicle search term
     setFromDate(""); // Clear from date
     setToDate(""); // Clear to date
-    setFilteredUsers(Array.isArray(userData) ? userData : []); // Reset the filtered data to the initial state (userData)
+    setSelectedServiceType("Serviced"); // Reset the dropdown to the default value
+    setFilteredUsers(initialUserData || []); // Reset the filtered data to the initial state (userData)
     setCurrentPage(1); // Reset to the first page
   };
 
@@ -95,11 +117,10 @@ const UsersTable = ({ userData ,onDelete }) => {
         try {
           setIsLoading(true);
           await axios.delete(`/delete-vehicle/${userId}`);
-          Swal.fire('Deleted!', 'This bill  has been deleted.', 'success');
+          Swal.fire('Deleted!', 'This bill has been deleted.', 'success');
           // Reload the user data after successful deletion
           onDelete(userId);
           setFilteredUsers((prev) => prev.filter((user) => user._id !== userId));
-         
         } catch (error) {
           console.error('Error deleting user:', error);
           Swal.fire('Error!', 'There was an error deleting the vehicle.', 'error');
@@ -172,6 +193,34 @@ const UsersTable = ({ userData ,onDelete }) => {
             >
               Search by Date
             </button>
+          </div>
+          <div className="relative">
+            <select
+              className="bg-black text-white border border-white rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 appearance-none w-full"
+              value={selectedServiceType}
+              onChange={handleDropdownChange}
+            >
+              <option value="Serviced">Serviced</option>
+              <option value="Enquiry">Enquiry</option>
+            </select>
+            <div
+              className="absolute inset-y-0 right-3 flex items-center pointer-events-none"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                className="w-5 h-5 text-white"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
           </div>
           <button
             className="bg-red-600 text-white px-4 py-2 rounded-lg"
@@ -263,16 +312,16 @@ const UsersTable = ({ userData ,onDelete }) => {
                     </span>
                   </td>
                   <td
-  className={`px-6 py-4 whitespace-nowrap border border-black ${
-    user.servicestatus === "Serviced"
-      ? "bg-green-500 text-white font-bold"
-      : user.servicestatus === "Rejected"
-      ? "bg-red-500 text-white font-bold"
-      : "bg-gray-300 text-gray-800"
-  }`}
->
-  <span className="text-sm font-medium">{user.servicestatus}</span>
-</td>
+                    className={`px-6 py-4 whitespace-nowrap border border-black ${
+                      user.servicestatus === "Serviced"
+                        ? "bg-green-500 text-white font-bold"
+                        : user.servicestatus === "Rejected"
+                        ? "bg-red-500 text-white font-bold"
+                        : "bg-gray-300 text-gray-800"
+                    }`}
+                  >
+                    <span className="text-sm font-medium">{user.servicestatus}</span>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm font-medium text-gray-300">
                       {user.discount}
@@ -286,10 +335,10 @@ const UsersTable = ({ userData ,onDelete }) => {
                   {isAdmin && (
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300 ">
                       <button
-                        className="text-red-600 hover:text-red-800" 
+                        className="text-red-600 hover:text-red-800"
                         onClick={() => handleDelete(user._id)}
                       >
-                       delete
+                        delete
                       </button>
                     </td>
                   )}
@@ -299,21 +348,17 @@ const UsersTable = ({ userData ,onDelete }) => {
           </table>
         </div>
       )}
-
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex justify-between mt-6">
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
           onClick={() => handlePageChange("prev")}
           disabled={currentPage === 1}
         >
           Previous
         </button>
-        <span className="text-gray-300">
-          Page {currentPage} of {Math.ceil(filteredUsers.length / itemsPerPage)}
-        </span>
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
           onClick={() => handlePageChange("next")}
           disabled={currentPage === Math.ceil(filteredUsers.length / itemsPerPage)}
         >
