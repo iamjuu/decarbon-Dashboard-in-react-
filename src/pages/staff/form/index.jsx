@@ -292,8 +292,10 @@ const RequestPage = () => {
                   required
                 >
                   <option value="">Select fuel type</option>
-                  <option value="petrol">Petrol</option>
-                  <option value="diesel">Diesel</option>
+                  <option value="Petrol">Petrol</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="Gas">Gas</option>
+
                 </select>
               </div>
 

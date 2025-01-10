@@ -130,7 +130,7 @@
     if (response.status === 200) {
       const data = response.data;
       setcountobject(data)
-      console.log(countobject)
+      
       
       
     }
@@ -214,7 +214,7 @@
             ) : error ? (
               <div className="text-center text-red-500">{error}</div>
             ) : (
-              <UsersTable userData={userList} onDelete={handleUserDeletion} />
+              <UsersTable userData={userList} onDelete={handleUserDeletion}  />
             )}
 
             {/* Button to export data to Excel */}
