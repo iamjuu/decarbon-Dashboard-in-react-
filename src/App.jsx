@@ -10,6 +10,7 @@ import ProtectedRoute from "./pages/Protectedroute";
 import "./App.css";
 import NotFound from "./pages/Notfound";
 import Allregistration from "./pages/AllRegistration";
+import Booking from "./pages/Bookings"
 function App() {
   return (
     <>
@@ -65,6 +66,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["Admin", "User"]}>
                 <Allregistration />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bookings"
+            element={
+              <ProtectedRoute allowedRoles={["Admin", "User"]}>
+                <Booking />
               </ProtectedRoute>
             }
           />

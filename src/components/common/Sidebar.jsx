@@ -3,7 +3,9 @@ import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode'
-import { FaUsers } from "react-icons/fa";
+import { FaUsers  } from "react-icons/fa";
+import { SlCalender } from "react-icons/sl";
+
 
 const SIDEBAR_ITEMS = [
   {
@@ -16,7 +18,9 @@ const SIDEBAR_ITEMS = [
   { name: "Users list", icon: Users, color: "#EC4899", href: "/users" },
   { name: "Client Bill Form", icon: ClipboardType, color: "#3B82F6", href: "/staffs-bill-form" },
   { name: "Registrations", icon: FaUsers, color: "EC4899", href: "/registrations" },
+  { name: "Bookings", icon: SlCalender , color: "EC4899", href: "/bookings" },
   { name: "Settings", icon: Settings, color: "#6EE7B7", href: "/settings" },
+  
 
 ];
 
