@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "../Instance/Instance";
 import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
@@ -12,6 +12,9 @@ const OverviewPage = () => {
   const [selectedDetailId, setSelectedDetailId] = useState(null);
   const [selectvechicleno, setselectvechicleno] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  
+  const reasonInputRef = useRef(null);
+  const [cursorPosition, setCursorPosition] = useState(null);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,7 +35,14 @@ const OverviewPage = () => {
     fetchData();
   }, []);
 
-  // Rest of your data processing code remains the same...
+  // Effect to maintain cursor position
+  useEffect(() => {
+    if (reasonInputRef.current && cursorPosition !== null) {
+      reasonInputRef.current.selectionStart = cursorPosition;
+      reasonInputRef.current.selectionEnd = cursorPosition;
+    }
+  }, [rejectionReason, cursorPosition]);
+
   const flattenedData = pendingData.reduce((acc, user) => {
     return acc.concat(
       user.details.map(detail => ({
@@ -58,6 +68,8 @@ const OverviewPage = () => {
     setSelectedDetailId(id);
     setselectvechicleno(vno);
     setShowModal(true);
+    setRejectionReason("");
+    setCursorPosition(0);
   };
 
   const handleReject = async () => {
@@ -68,12 +80,16 @@ const OverviewPage = () => {
         text: "Please provide a reason for rejecting.",
       });
       return;
+
+
+
+      
     }
 
     try {
       const response = await axios.post(`/reject/${selectedDetailId}`, {
         reason: rejectionReason,
-        vehiclenumber: selectvechicleno,
+        vehiclenumber: selectvechicleno
       });
 
       if (response.status === 200) {
@@ -100,22 +116,63 @@ const OverviewPage = () => {
     setRejectionReason("");
     setselectvechicleno(null);
     setShowModal(false);
+    setCursorPosition(null);
   };
 
-  // Modal Component
+  const handleAddToBill = async (id, vehicleNumber) => {
+    try {
+     
+      const response = await axios.post("/addtobill", { id, vehicleNumber });
+      if (response.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: "Added to Bill",
+          text: "This item has been successfully added to the bill.",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to add to bill.",
+      });
+    }
+  };
+
+  const handleTextareaChange = (e) => {
+    const input = e.target;
+    const newPosition = input.selectionStart;
+    setRejectionReason(e.target.value);
+    setCursorPosition(newPosition);
+  };
+
   const RejectionModal = () => {
     if (!showModal) return null;
 
+    const handleBackdropClick = (e) => {
+      if (e.target === e.currentTarget) {
+        handleCancelReject();
+      }
+    };
+
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg p-6 w-96 max-w-md">
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+        onClick={handleBackdropClick}
+      >
+        <div 
+          className="bg-white rounded-lg p-6 w-96 max-w-md"
+          onClick={(e) => e.stopPropagation()}
+        >
           <h3 className="text-lg font-semibold mb-4 text-blue-500">Enter Rejection Reason</h3>
           <textarea
+            ref={reasonInputRef}
             value={rejectionReason}
-            onChange={(e) => setRejectionReason(e.target.value)}
+            onChange={handleTextareaChange}
             placeholder="Enter reason for rejecting..."
             rows="4"
             className="w-full p-2 border border-gray-300 rounded-md text-black mb-4"
+            autoFocus
           />
           <div className="flex justify-end space-x-2">
             <button
@@ -135,6 +192,15 @@ const OverviewPage = () => {
       </div>
     );
   };
+
+  useEffect(() => {
+    if (showModal && reasonInputRef.current) {
+      const timeoutId = setTimeout(() => {
+        reasonInputRef.current.focus();
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [showModal]);
 
   if (loading) return <div className="flex justify-center items-center h-screen"><p className="text-black">Loading...</p></div>;
   if (error) return <div className="flex justify-center items-center h-screen"><p className="text-red-500">{error}</p></div>;
@@ -190,7 +256,6 @@ const OverviewPage = () => {
             ))}
           </div>
 
-          {/* Pagination Controls */}
           {totalPages > 1 && (
             <div className="mt-8 flex justify-center items-center space-x-4">
               <button
