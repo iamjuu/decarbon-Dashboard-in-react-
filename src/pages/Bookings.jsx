@@ -19,12 +19,13 @@ const OverviewPage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(1); // Track the current page
-  const [totalPages, setTotalPages] = useState(1); // Total pages for pagination
-
-  // State for date range
-  const [fromDate, setFromDate] = useState(null);
-  const [toDate, setToDate] = useState(null);
+  const [page, setPage] = useState(1); // Track the current page for default bookings
+  const [totalPages, setTotalPages] = useState(1); // Total pages for default pagination
+  const [fromDate, setFromDate] = useState(null); // Date range - From
+  const [toDate, setToDate] = useState(null); // Date range - To
+  const [searchPage, setSearchPage] = useState(1); // Page for search results
+  const [searchTotalPages, setSearchTotalPages] = useState(1); // Total pages for search
+  const [isSearchActive, setIsSearchActive] = useState(false); // Track if search is active
 
   // Fetch booking counts (this week, this month, tomorrow, this year)
   useEffect(() => {
@@ -41,20 +42,23 @@ const OverviewPage = () => {
   }, []);
 
   // Fetch bookings with pagination
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const response = await axios.get(`/bookings?page=${page}&limit=6`);
-        setPendingData(response.data.data); // Update state with fetched bookings data
-        setTotalPages(response.data.totalPages); // Set the total number of pages
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to fetch bookings");
-        setLoading(false);
-      }
-    };
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`/bookings?page=${page}&limit=6`);
+      setPendingData(response.data.data); // Update state with fetched bookings data
+      setTotalPages(response.data.totalPages); // Set the total number of pages
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to fetch bookings");
+      setLoading(false);
+    }
+  };
 
-    fetchBookings();
+  useEffect(() => {
+    if (!isSearchActive) {
+      fetchBookings();
+    }
   }, [page]);
 
   // Handle search by date range
@@ -63,25 +67,65 @@ const OverviewPage = () => {
       alert("Please select both From Date and To Date");
       return;
     }
-
-    // Format the dates to ISO format (yyyy-mm-dd)
-    const formattedFromDate = fromDate.toISOString().split("T")[0];
-    const formattedToDate = toDate.toISOString().split("T")[0];
-
+  
+    // Ensure both fromDate and toDate are in UTC with time set to 00:00:00 for the start date and 23:59:59 for the end date.
+    const formattedFromDate = new Date(fromDate);
+    formattedFromDate.setUTCHours(0, 0, 0, 0); // Set fromDate to 00:00:00 in UTC
+  
+    const formattedToDate = new Date(toDate);
+    formattedToDate.setUTCHours(23, 59, 59, 999); // Set toDate to 23:59:59 in UTC
+  
+    // Convert to ISO string format and send only the date part (yyyy-mm-dd)
+    const formattedFromDateString = formattedFromDate.toISOString().split("T")[0];
+    const formattedToDateString = formattedToDate.toISOString().split("T")[0];
+  
     try {
-      const response = await axios.get(`/bookings/search?fromDate=${formattedFromDate}&toDate=${formattedToDate}`);
+      setLoading(true);
+      const response = await axios.get(
+        `/bookings/search?fromDate=${formattedFromDateString}&toDate=${formattedToDateString}&page=${searchPage}&limit=6`
+      );
       setPendingData(response.data.data); // Update state with search results
+      setSearchTotalPages(response.data.totalPages); // Set total pages for search
+      setIsSearchActive(true); // Mark search as active
     } catch (err) {
-      setError("Search failed");
+      setLoading(false);
+  
+      // Check the error response
+      if (err.response) {
+        // Error is from the server (4xx or 5xx)
+        if (err.response.status >= 400 && err.response.status < 500) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Bad Request',
+            text: 'There was an issue with the provided dates. Please check and try again.',
+          });
+        } else if (err.response.status >= 500) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Server Error',
+            text: 'There was a server error while processing the request. Please try again later.',
+          });
+        }
+      } else {
+        // Error with no response (network issues, etc.)
+        Swal.fire({
+          icon: 'error',
+          title: 'Network Error',
+          text: 'There was an issue with the network. Please try again later.',
+        });
+      }
     }
   };
+  
 
   // Handle clearing search and resetting state
   const handleClearSearch = () => {
     setFromDate(null);
     setToDate(null);
-    setPage(1); // Reset to page 1
-    fetchBookings(); // Refetch original bookings list
+    setSearchPage(1); // Reset search page
+    setIsSearchActive(false); // Mark search as inactive
+    setPage(1); // Reset default page
+    fetchBookings(); // Fetch the original bookings list
   };
 
   // Handle Convert to Register
@@ -95,6 +139,7 @@ const OverviewPage = () => {
           text: "The booking has been successfully converted to registration!",
         }).then(() => {
           setPage(1); // Reset to page 1
+          fetchBookings(); // Refetch bookings after conversion
         });
       }
     } catch (err) {
@@ -106,15 +151,22 @@ const OverviewPage = () => {
     }
   };
 
-  // Refetch bookings (used for both the initial state and after clearing search)
-  const fetchBookings = async () => {
-    try {
-      const response = await axios.get(`/bookings?page=${page}&limit=10`);
-      setPendingData(response.data.data); // Reset to the original bookings data
-      setTotalPages(response.data.totalPages);
-    } catch (err) {
-      setError("Failed to fetch bookings");
-      setLoading(false);
+  // Pagination controls
+  const handleNextPage = () => {
+    if (isSearchActive) {
+      setSearchPage((prev) => prev + 1);
+      handleSearch();
+    } else {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (isSearchActive) {
+      setSearchPage((prev) => prev - 1);
+      handleSearch();
+    } else {
+      setPage((prev) => prev - 1);
     }
   };
 
@@ -146,30 +198,10 @@ const OverviewPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
           >
-            <StatCard
-              name="Bookings This Week"
-              icon={UsersIcon}
-              value={countobject.thisWeek ?? "Loading..."}
-              color="#6366F1"
-            />
-            <StatCard
-              name="Bookings This Month"
-              icon={UserPlus}
-              value={countobject.thisMonth ?? "Loading..."}
-              color="#b91010"
-            />
-            <StatCard
-              name="Bookings Tomorrow"
-              icon={UserCheck}
-              value={countobject.tomorrow ?? "Loading..."}
-              color="#F59E0B"
-            />
-            <StatCard
-              name="Bookings This Year"
-              icon={Car}
-              value={countobject.thisYear ?? "Loading..."}
-              color="#10B981"
-            />
+            <StatCard name="Bookings This Week" icon={UsersIcon} value={countobject.thisWeek ?? "Loading..."} color="#6366F1" />
+            <StatCard name="Bookings This Month" icon={UserPlus} value={countobject.thisMonth ?? "Loading..."} color="#b91010" />
+            <StatCard name="Bookings Tomorrow" icon={UserCheck} value={countobject.tomorrow ?? "Loading..."} color="#F59E0B" />
+            <StatCard name="Bookings This Year" icon={Car} value={countobject.thisYear ?? "Loading..."} color="#10B981" />
           </motion.div>
 
           {/* Date Range Picker for Searching */}
@@ -188,18 +220,8 @@ const OverviewPage = () => {
               placeholderText="To Date"
               className="px-4 py-2 rounded-md bg-gray-700 text-white"
             />
-            <button
-              onClick={handleSearch}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
-            >
-              Search
-            </button>
-            <button
-              onClick={handleClearSearch}
-              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition"
-            >
-              Clear
-            </button>
+            <button onClick={handleSearch} className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">Search</button>
+            <button onClick={handleClearSearch} className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition">Clear</button>
           </div>
 
           {/* Bookings Display */}
@@ -207,31 +229,12 @@ const OverviewPage = () => {
             <h2 className="text-2xl font-semibold text-white mb-4">Pending Bookings</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {pendingData.map((booking) => (
-                <div
-                  key={booking._id}
-                  className="bg-white p-3 rounded-lg shadow-sm flex flex-col space-y-2"
-                >
-                  {/* Booking Image */}
-                  <img
-                    src={`http://localhost:7000/public/images/${booking.imagelink}`}
-                    alt="Booking"
-                    className="w-full h-20 object-cover rounded-md"
-                  />
-
-                  {/* Booking details */}
-                  <h3 className="text-sm font-semibold text-gray-800">{booking._id}</h3>
-                  <p className="text-xs text-gray-500">
-                    Booking Date: {new Date(booking.bookdate).toLocaleDateString()}
-                  </p>
-                  <p className="text-xs text-gray-600">Kilometers: {booking.kilometer}</p>
-
-                  {/* Convert to Register Button */}
-                  <button
-                    onClick={() => handleConvertToRegister(booking._id)}
-                    className="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600 transition text-xs"
-                  >
-                    Convert to Register
-                  </button>
+                <div key={booking._id} className="bg-white p-3 rounded-lg shadow-sm flex flex-col space-y-2">
+                  <img src={`http://localhost:7000/public/images/${booking.imagelink}`} alt="Booking" className="w-full h-20 object-cover rounded-md" />
+                  <h3 className="text-sm font-semibold text-black text-bold">{booking.vno}</h3>
+                  <p className="text-xs text-black font-semibold">Booking Date: {new Date(booking.bookdate).toLocaleDateString()}</p>
+                  <p className="text-xs text-black font-semibold">Kilometers: {booking.kilometer}</p>
+                  <button onClick={() => handleConvertToRegister(booking._id)} className="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600 transition text-xs">Convert to Register</button>
                 </div>
               ))}
             </div>
@@ -239,16 +242,18 @@ const OverviewPage = () => {
             {/* Pagination */}
             <div className="mt-8 flex justify-between">
               <button
-                disabled={page === 1}
-                onClick={() => setPage(page - 1)}
+                disabled={(isSearchActive ? searchPage : page) === 1}
+                onClick={handlePrevPage}
                 className="px-4 py-2 bg-gray-500 text-white rounded-md disabled:opacity-50"
               >
                 Previous
               </button>
-              <span className="text-white">Page {page} of {totalPages}</span>
+              <span className="text-white">
+                Page {isSearchActive ? searchPage : page} of {isSearchActive ? searchTotalPages : totalPages}
+              </span>
               <button
-                disabled={page === totalPages}
-                onClick={() => setPage(page + 1)}
+                disabled={(isSearchActive ? searchPage : page) === (isSearchActive ? searchTotalPages : totalPages)}
+                onClick={handleNextPage}
                 className="px-4 py-2 bg-gray-500 text-white rounded-md disabled:opacity-50"
               >
                 Next
