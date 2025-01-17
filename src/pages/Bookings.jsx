@@ -64,59 +64,48 @@ const OverviewPage = () => {
   // Handle search by date range
   const handleSearch = async () => {
     if (!fromDate || !toDate) {
-      alert("Please select both From Date and To Date");
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: 'Please select both From Date and To Date',
+      });
       return;
     }
-  
-    // Ensure both fromDate and toDate are in UTC with time set to 00:00:00 for the start date and 23:59:59 for the end date.
-    const formattedFromDate = new Date(fromDate);
-    formattedFromDate.setUTCHours(0, 0, 0, 0); // Set fromDate to 00:00:00 in UTC
-  
-    const formattedToDate = new Date(toDate);
-    formattedToDate.setUTCHours(23, 59, 59, 999); // Set toDate to 23:59:59 in UTC
-  
-    // Convert to ISO string format and send only the date part (yyyy-mm-dd)
-    const formattedFromDateString = formattedFromDate.toISOString().split("T")[0];
-    const formattedToDateString = formattedToDate.toISOString().split("T")[0];
-  
+
     try {
       setLoading(true);
+
+function formatDateToLocal(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');  // Month is zero-indexed
+  const day = String(date.getDate()).padStart(2, '0');  // Day of the month
+  
+  return `${year}-${month}-${day}`;
+}
+
+// Apply the function to both dates
+const formattedFromDate = formatDateToLocal(fromDate);
+const formattedToDate = formatDateToLocal(toDate);
+
+
+   
       const response = await axios.get(
-        `/bookings/search?fromDate=${formattedFromDateString}&toDate=${formattedToDateString}&page=${searchPage}&limit=6`
+        `/bookings/search?fromDate=${formattedFromDate}&toDate=${formattedToDate}&page=${searchPage}&limit=6`
       );
+
       setPendingData(response.data.data); // Update state with search results
       setSearchTotalPages(response.data.totalPages); // Set total pages for search
-      setIsSearchActive(true); // Mark search as active
+      setIsSearchActive(true); // Mark search active
+      setLoading(false);
     } catch (err) {
       setLoading(false);
-  
-      // Check the error response
-      if (err.response) {
-        // Error is from the server (4xx or 5xx)
-        if (err.response.status >= 400 && err.response.status < 500) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Bad Request',
-            text: 'There was an issue with the provided dates. Please check and try again.',
-          });
-        } else if (err.response.status >= 500) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Server Error',
-            text: 'There was a server error while processing the request. Please try again later.',
-          });
-        }
-      } else {
-        // Error with no response (network issues, etc.)
-        Swal.fire({
-          icon: 'error',
-          title: 'Network Error',
-          text: 'There was an issue with the network. Please try again later.',
-        });
-      }
+      Swal.fire({
+        icon: 'error',
+        title: 'Search Error',
+        text: 'Failed to fetch search results. Please try again.',
+      });
     }
   };
-  
 
   // Handle clearing search and resetting state
   const handleClearSearch = () => {
@@ -154,21 +143,33 @@ const OverviewPage = () => {
   // Pagination controls
   const handleNextPage = () => {
     if (isSearchActive) {
-      setSearchPage((prev) => prev + 1);
-      handleSearch();
+      if (searchPage < searchTotalPages) {
+        setSearchPage((prev) => prev + 1);
+      }
     } else {
-      setPage((prev) => prev + 1);
+      if (page < totalPages) {
+        setPage((prev) => prev + 1);
+      }
     }
   };
 
   const handlePrevPage = () => {
     if (isSearchActive) {
-      setSearchPage((prev) => prev - 1);
-      handleSearch();
+      if (searchPage > 1) {
+        setSearchPage((prev) => prev - 1);
+      }
     } else {
-      setPage((prev) => prev - 1);
+      if (page > 1) {
+        setPage((prev) => prev - 1);
+      }
     }
   };
+
+  useEffect(() => {
+    if (isSearchActive) {
+      handleSearch();
+    }
+  }, [searchPage]);
 
   if (loading) {
     return (
@@ -231,9 +232,9 @@ const OverviewPage = () => {
               {pendingData.map((booking) => (
                 <div key={booking._id} className="bg-white p-3 rounded-lg shadow-sm flex flex-col space-y-2">
                   <img src={`http://localhost:7000/public/images/${booking.imagelink}`} alt="Booking" className="w-full h-20 object-cover rounded-md" />
-                  <h3 className="text-sm font-semibold text-black text-bold">{booking.vno}</h3>
-                  <p className="text-xs text-black font-semibold">Booking Date: {new Date(booking.bookdate).toLocaleDateString()}</p>
-                  <p className="text-xs text-black font-semibold">Kilometers: {booking.kilometer}</p>
+                  <h3 className="text-sm font-semibold text-black">{booking.vno}</h3>
+                  <p className="text-xs text-black">Booking Date: {new Date(booking.bookdate).toLocaleDateString()}</p>
+                  <p className="text-xs text-black">Kilometers: {booking.kilometer}</p>
                   <button onClick={() => handleConvertToRegister(booking._id)} className="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600 transition text-xs">Convert to Register</button>
                 </div>
               ))}
@@ -244,17 +245,14 @@ const OverviewPage = () => {
               <button
                 disabled={(isSearchActive ? searchPage : page) === 1}
                 onClick={handlePrevPage}
-                className="px-4 py-2 bg-gray-500 text-white rounded-md disabled:opacity-50"
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 disabled:opacity-50"
               >
                 Previous
               </button>
-              <span className="text-white">
-                Page {isSearchActive ? searchPage : page} of {isSearchActive ? searchTotalPages : totalPages}
-              </span>
               <button
                 disabled={(isSearchActive ? searchPage : page) === (isSearchActive ? searchTotalPages : totalPages)}
                 onClick={handleNextPage}
-                className="px-4 py-2 bg-gray-500 text-white rounded-md disabled:opacity-50"
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 disabled:opacity-50"
               >
                 Next
               </button>
