@@ -32,12 +32,12 @@ const OverviewPage = () => {
   }, [role]);
 
   // Define metrics with icons and colors
-  const metrics = [
-    { key: "totalUser", name: "Total Registrations", icon: Zap, color: "#6366F1" },
-    { key: "totalServices", name: "Total Service", icon: Users, color: "#8B5CF6" },
-    { key: "totalClients", name: "Total Enquiry Clients", icon: ShoppingBag, color: "#EC4899" },
-    { key: "totalIncome", name: "Total Income", icon: DollarSign, color: "#10B981" },
-  ];
+  // const metrics = [
+  //   { key: "totalUser", name: "Total Registrations", icon: Zap, color: "#6366F1" },
+  //   { key: "totalServices", name: "Total Service", icon: Users, color: "#8B5CF6" },
+  //   { key: "totalClients", name: "Total Enquiry Clients", icon: ShoppingBag, color: "#EC4899" },
+  //   { key: "totalIncome", name: "Total Income", icon: DollarSign, color: "#10B981" },
+  // ];
 
   // Define time periods
   const periods = [
