@@ -214,7 +214,7 @@ const UsersTable = ({ userData, onDelete }) => {
       smoke: user.smoke,
       lhceDetails: user.lhceDetails,
       serviceStatus: user.servicestatus,
-      services: user.services,
+      services: user.services, // Pass the array directly for processing later
       discount: user.discount,
       totalAmount: user.totalAmount,
       reason: user.reason
@@ -223,11 +223,23 @@ const UsersTable = ({ userData, onDelete }) => {
     // Add rows and apply styling
     data.forEach(rowData => {
       const row = worksheet.addRow(rowData);
-      
-      // Find the service status cell
+  
+      // Process services array and apply rich text
+      const servicesCell = row.getCell('services');
+      if (Array.isArray(rowData.services) && rowData.services.length > 0) {
+        const richText = rowData.services.flatMap(service => [
+          { text: service.serviceType, font: { bold: true } },
+          { text: ': ' },
+          { text: service.serviceAmount.toString(), font: { bold: true } },
+          { text: '\n' }
+        ]);
+  
+        // Add rich text to the cell
+        servicesCell.value = { richText };
+      }
+  
+      // Style the service status cell
       const serviceStatusCell = row.getCell('serviceStatus');
-      
-      // Apply styling based on service status
       if (rowData.serviceStatus === 'Serviced') {
         serviceStatusCell.fill = {
           type: 'pattern',
@@ -264,6 +276,7 @@ const UsersTable = ({ userData, onDelete }) => {
       saveAs(new Blob([buffer]), `${selectedServiceType.toLowerCase()}_users.xlsx`);
     });
   };
+  
   return (
     <motion.div
       className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"

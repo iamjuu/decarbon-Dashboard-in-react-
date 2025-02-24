@@ -129,7 +129,13 @@ const OverviewPage = () => {
           title: "Added to Bill",
           text: "This item has been successfully added to the bill.",
         });
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+
       }
+
     } catch (error) {
       Swal.fire({
         icon: "error",

@@ -11,6 +11,7 @@ import "./App.css";
 import NotFound from "./pages/Notfound";
 import Allregistration from "./pages/AllRegistration";
 import Booking from "./pages/Bookings"
+
 function App() {
   return (
     <>

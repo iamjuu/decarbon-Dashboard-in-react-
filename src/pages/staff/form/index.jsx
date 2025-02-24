@@ -141,7 +141,9 @@ const RequestPage = () => {
         setLhceDetails("");
         setDiscount(0);
         setServices([{ service: "", amount: "" }]);
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       });
 
       // Reset the form state after successful submission
