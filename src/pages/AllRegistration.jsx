@@ -122,7 +122,7 @@ const OverviewPage = () => {
   const handleAddToBill = async (id, vehicleNumber) => {
     try {
      
-      const response = await axios.post("/addtobill", { id, vehicleNumber });
+      const response = await axios.post("addtobill", { id, vehicleNumber });
       if (response.status === 200) {
         Swal.fire({
           icon: "success",
@@ -134,10 +134,15 @@ const OverviewPage = () => {
           window.location.reload();
         }, 2000);
 
+
       }
 
     } catch (error) {
-      Swal.fire({
+      
+
+console.log('error hi',error)
+
+	    Swal.fire({
         icon: "error",
         title: "Error",
         text: "Failed to add to bill.",
@@ -231,7 +236,7 @@ const OverviewPage = () => {
                 className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col transition-transform transform hover:scale-105"
               >
                 <img
-                  src={`http://localhost:7000/public/images/${item.imagelink}`}
+                  src={`${item.imagelink}`}
                   alt="Pending Document"
                   className="w-full h-48 object-cover"
                 />

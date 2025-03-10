@@ -284,77 +284,76 @@ const UsersTable = ({ userData, onDelete }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-<div className="flex justify-between items-center mb-6 p-4 bg-gray-800 bg-opacity-50 backdrop-blur-md rounded-lg shadow-lg border border-gray-700">
- 
-  <div className="flex items-center space-x-4">
-    {/* Vehicle Number Search */}
-    <div className="relative">
-      <input
-        type="text"
-        placeholder="Search by Vehicle Number..."
-        className="bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
-    </div>
-
-    {/* Search Button */}
+<div className="flex items-center justify-between w-full p-3 bg-gray-900 rounded-lg shadow-lg border border-gray-800 space-x-3 overflow-hidden">
+  {/* Vehicle Number Search */}
+  <div className="relative flex-shrink-0">
+    <input
+      type="text"
+      placeholder="Vehicle Number..."
+      className="bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-3 h-10 focus:outline-none focus:ring-1 focus:ring-blue-500 w-52"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+    <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+  </div>
+  
+  {/* Search Button */}
+  <button
+    className="bg-blue-600 text-white px-4 h-10 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 flex-shrink-0"
+    onClick={handleSearch}
+  >
+    Search
+  </button>
+  
+  {/* Date Range Search - Labels Inside Inputs */}
+  <div className="flex items-center space-x-2 flex-shrink-0">
+    <input
+      type="date"
+      className="bg-gray-700 text-white rounded-lg px-3 h-10 focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
+      value={fromDate}
+      onChange={(e) => setFromDate(e.target.value)}
+      placeholder="From"
+    />
+    <input
+      type="date"
+      className="bg-gray-700 text-white rounded-lg px-3 h-10 focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
+      value={toDate}
+      onChange={(e) => setToDate(e.target.value)}
+      placeholder="To"
+    />
     <button
-      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      onClick={handleSearch}
+      className="bg-blue-600 text-white px-3 h-10 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 flex-shrink-0"
+      onClick={handleDateRangeSearch}
     >
-      Search
+      Filter
     </button>
-
-    {/* Date Range Search */}
-    <div className="flex items-center space-x-2">
-      <input
-        type="date"
-        className="bg-gray-700 text-white rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
-        value={fromDate}
-        onChange={(e) => setFromDate(e.target.value)}
-      />
-      <input
-        type="date"
-        className="bg-gray-700 text-white rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
-        value={toDate}
-        onChange={(e) => setToDate(e.target.value)}
-      />
-      <button
-        className="bg-blue-600 text-white px-3 py-0 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        onClick={handleDateRangeSearch}
-      >
-        Search by Date
-      </button>
-    </div>
-
-    {/* Service Type Dropdown */}
-    <div className="relative w-40">
-      <select
-        className="bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-        value={selectedServiceType}
-        onChange={handleDropdownChange}
-      >
-        <option value="Serviced">Serviced</option>
-        <option value="Enquiry">Enquiry</option>
-      </select>
-    </div>
-
-    {/* Clear Button */}
+  </div>
+  
+  {/* Service Type Dropdown */}
+  <div className="flex-shrink-0 w-32">
+    <select
+      className="bg-gray-700 text-white border border-gray-600 rounded-lg px-3 h-10 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full"
+      value={selectedServiceType}
+      onChange={handleDropdownChange}
+    >
+      <option value="Serviced">Serviced</option>
+      <option value="Enquiry">Enquiry</option>
+    </select>
+  </div>
+  
+  {/* Action Buttons */}
+  <div className="flex space-x-2 flex-shrink-0">
     <button
-      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+      className="bg-red-600 text-white px-3 h-10 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-red-500"
       onClick={handleClear}
     >
       Clear
     </button>
-
-    {/* Export to Excel Button */}
     <button
-      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+      className="bg-green-600 text-white px-3 h-10 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500"
       onClick={handleExport}
     >
-      Export to Excel
+      Export
     </button>
   </div>
 </div>

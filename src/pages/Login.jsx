@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Axios from 'axios';
+import Axios from "../Instance/Instance"
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import {jwtDecode} from 'jwt-decode'; 
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -18,10 +18,10 @@ const Login = () => {
         const decodedToken = jwtDecode(token);
 
         if (decodedToken.exp * 1000 > Date.now()) {
-          // Token is valid, navigate to the home page
-          navigate('/');
+          // Token is valid, navigate to home
+          navigate('/home');
         } else {
-          // Token is expired, remove it from localStorage
+          // Token is expired, remove it
           localStorage.removeItem('token');
           Swal.fire({
             icon: 'info',
@@ -30,12 +30,11 @@ const Login = () => {
           });
         }
       } catch (error) {
-        // Handle errors during token decoding
-        localStorage.removeItem('token');
+        localStorage.removeItem('token'); // Remove invalid token
         console.error('Error decoding token:', error);
       }
     }
-  }, []); // Dependency on navigate
+  }, [navigate]);
 
   // Handle form submission
   const handleLogin = async (e) => {
@@ -43,33 +42,34 @@ const Login = () => {
 
     try {
       // Make the login request to the backend API
-      const response = await Axios.post('http://localhost:7000/login', {
+	 
+      const response = await Axios.post("/login", {
         email,
         password,
       });
 
-      // If the login is successful, store the token and redirect
+      // If login is successful, store the token and redirect
       if (response.data.token) {
-    localStorage.setItem('token', response.data.token); // Store the token in localStorage
-    console.log("token set")
-        navigate('/'); // Redirect to the home page
+        localStorage.setItem('token', response.data.token);
+        navigate('/home');
       }
     } catch (error) {
-      // Handle errors gracefully
-      Swal.fire({
+
+console.log(error)
+	    Swal.fire({
         icon: 'error',
-        title: 'Error',
+        title: 'Login Failed',
         text: error.response?.data?.message || 'An error occurred. Please try again.',
       });
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-gray-100 px-4">
-      <div className="max-w-md w-full bg-gray-800 p-8 rounded-lg shadow-lg">
-      <h2 className="text-center text-2xl font-bold mb-6">
-  <p className='inline text-red-500'>Nso2</p>{' '}Login
-</h2>
+    <div className="flex items-center justify-center h-screen bg-gray-900 text-gray-100 px-4">
+      <div className="w-full max-w-md bg-gray-800 p-8 rounded-lg shadow-lg">
+        <h2 className="text-center text-2xl font-bold mb-6">
+          <p className="inline text-red-500">Nso2</p> Login
+        </h2>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
@@ -111,14 +111,10 @@ const Login = () => {
             </button>
           </div>
         </form>
-        <div className="text-center mt-6">
-          <p>
-            
-          </p>
-        </div>
       </div>
     </div>
   );
 };
 
 export default Login;
+

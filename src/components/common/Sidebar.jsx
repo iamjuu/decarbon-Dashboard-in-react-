@@ -19,7 +19,7 @@ const SIDEBAR_ITEMS = [
   { name: "Client Bill Form", icon: ClipboardType, color: "#3B82F6", href: "/staffs-bill-form" },
   { name: "Registrations", icon: FaUsers, color: "EC4899", href: "/registrations" },
   { name: "Bookings", icon: SlCalender , color: "EC4899", href: "/bookings" },
-  { name: "Settings", icon: Settings, color: "#6EE7B7", href: "/settings" },
+  
   
 
 ];

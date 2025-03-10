@@ -231,7 +231,7 @@ const formattedToDate = formatDateToLocal(toDate);
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {pendingData.map((booking) => (
                 <div key={booking._id} className="bg-white p-3 rounded-lg shadow-sm flex flex-col space-y-2">
-                  <img src={`http://localhost:7000/public/images/${booking.imagelink}`} alt="Booking" className="w-full h-20 object-cover rounded-md" />
+                  <img src={`${booking.imagelink}`} alt="Booking" className="w-full h-20 object-cover rounded-md" />
                   <h3 className="text-sm font-semibold text-black">{booking.vno}</h3>
                   <p className="text-xs text-black">Booking Date: {new Date(booking.bookdate).toLocaleDateString()}</p>
                   <p className="text-xs text-black">Kilometers: {booking.kilometer}</p>

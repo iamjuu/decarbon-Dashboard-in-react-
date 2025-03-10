@@ -8,7 +8,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (!token) {
     // No token, redirect to login
-    return <Navigate to="/login" />;
+    return <Navigate to="/Nso2/controlpanel/dashboard/login" />;
   }
 
   try {
@@ -17,7 +17,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     // Check if the token has expired
     if (decodedToken.exp * 1000 < Date.now()) {
       localStorage.removeItem('token'); // Remove expired token
-      return <Navigate to="/login" />;
+      return <Navigate to="/Nso2/controlpanel/dashboard/login" />;
     }
 
     // Check if the user role is allowed
