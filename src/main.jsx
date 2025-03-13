@@ -6,7 +6,10 @@ import './index.css';  // ✅ Ensure CSS is imported
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter basename="/Nso2/controlpanel/dashboard/">  {/* ✅ Apply base route */}
+
+    
+    <BrowserRouter basename="/Nos2/controlpanel/dashboard/">  {/* ✅ Apply base route */}
+
 	
       <App />
     </BrowserRouter>
