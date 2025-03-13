@@ -3,6 +3,8 @@ import axios from "../Instance/Instance";
 import Sidebar from "../components/common/Sidebar";
 import Header from "../components/common/Header";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+
 
 const OverviewPage = () => {
   const [pendingData, setPendingData] = useState([]);
@@ -19,7 +21,7 @@ const OverviewPage = () => {
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
-
+ const navigate = useNavigate()
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -99,7 +101,7 @@ const OverviewPage = () => {
           title: "Rejected",
           text: "The document has been rejected successfully!",
         }).then(() => {
-          window.location.reload();
+          navigate("/registrations")
         });
       }
     } catch (err) {
@@ -131,7 +133,7 @@ const OverviewPage = () => {
         });
 
         setTimeout(() => {
-          window.location.reload();
+          navigate("/registrations")
         }, 2000);
 
 

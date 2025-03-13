@@ -23,6 +23,7 @@ const OverviewPage = () => {
         try {
           const response = await axios.get("/overviewdetails");
           setOverviewData(response.data);
+		
         } catch (error) {
           console.error("Error fetching overview data:", error);
         } finally {
