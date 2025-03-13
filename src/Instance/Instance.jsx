@@ -2,7 +2,7 @@ import axios from "axios";
 
 const Instance = axios.create(
 	{
-  baseURL: " http://13.201.189.211/"+ "api", // Your backend API base URL
+  baseURL: import.meta.env.VITE_API_URL, // Your backend API base URL
   timeout: 20000,
   withCredentials: true,
 });
