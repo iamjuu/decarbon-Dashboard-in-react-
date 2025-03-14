@@ -32,7 +32,7 @@ Instance.interceptors.response.use(
       
       // Redirect to login page
       alert("Session expired. Please log in again.");
-      window.location.href = "/login"; // Or use React Router to navigate
+      window.location.href =  "/Nos2/controlpanel/dashboard"; // Or use React Router to navigate
     }
     return Promise.reject(error);
   }
