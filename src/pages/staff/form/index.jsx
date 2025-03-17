@@ -17,9 +17,11 @@ const RequestPage = () => {
   const [lhceDetails, setLhceDetails] = useState("");
   const [discount, setDiscount] = useState(0);
   const [services, setServices] = useState([{ service: "", amount: "" }]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Fetching vehicle numbers
   const fetchVehicleNumbers = async () => {
+    setIsLoading(true);
     try {
       const response = await Axios.get("/vehiclenumber");
       if (response?.data) {
@@ -27,12 +29,27 @@ const RequestPage = () => {
       }
     } catch (error) {
       console.error("Error fetching vehicle numbers:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to fetch vehicle numbers. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+        confirmButtonText: "OK",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchVehicleNumbers();
   }, []);
+
+  // Handle reload button click
+  const handleReload = () => {
+    fetchVehicleNumbers();
+    setSelectedVehicle("");
+  };
 
   // Fetching user details based on selected vehicle number
   useEffect(() => {
@@ -166,22 +183,44 @@ const RequestPage = () => {
         <main className="max-w-7xl mx-auto py-6 px-4 lg:px-8">
           <div className="max-w-xl mx-auto mb-5 bg-gray-800 text-white p-6 rounded-lg shadow-lg">
             <form className="space-y-4" onSubmit={handleSubmit}>
-              {/* Vehicle Select */}
-              <div>
-                <label htmlFor="vehicle-select">Select Vehicle Number:</label>
-                <select
-                  id="vehicle-select"
-                  onChange={handleVehicleChange}
-                  value={selectedVehicle}
-                  className="block w-full px-3 py-2 bg-black text-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="">Choose the number</option>
-                  {vehicleList.map((item, index) => (
-                    <option key={index} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
+              {/* Vehicle Select with Reload Icon */}
+              <div className="flex items-center">
+                <div className="flex-grow">
+                  <label htmlFor="vehicle-select">Select Vehicle Number:</label>
+                  <select
+                    id="vehicle-select"
+                    onChange={handleVehicleChange}
+                    value={selectedVehicle}
+                    className="block w-full px-3 py-2 bg-black text-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  >
+                    <option value="">Choose the number</option>
+                    {vehicleList.map((item, index) => (
+                      <option key={index} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="ml-2 mt-6">
+                  <button
+                    type="button"
+                    onClick={handleReload}
+                    disabled={isLoading}
+                    className="p-2 rounded-full bg-blue-500 hover:bg-blue-700 focus:outline-none transition-colors"
+                    title="Reload vehicle list"
+                  >
+                    {isLoading ? (
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : (
+                      <svg className="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               {/* Owner Name */}
