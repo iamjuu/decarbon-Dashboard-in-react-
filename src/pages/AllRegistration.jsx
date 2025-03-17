@@ -12,6 +12,7 @@ const OverviewPage = () => {
   const [selectedDetailId, setSelectedDetailId] = useState(null);
   const [selectVehicleNo, setSelectVehicleNo] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
 
   const reasonInputRef = useRef(null);
   const [cursorPosition, setCursorPosition] = useState(null);
@@ -22,6 +23,7 @@ const OverviewPage = () => {
 
   // Fetch data function
   const fetchPendingData = async () => {
+    setIsReloading(true);
     try {
       const response = await axios.get("allregistration");
       setPendingData(response.data);
@@ -29,6 +31,8 @@ const OverviewPage = () => {
     } catch (err) {
       setError("Failed to fetch data");
       setLoading(false);
+    } finally {
+      setIsReloading(false);
     }
   };
 
@@ -206,11 +210,36 @@ const OverviewPage = () => {
       <div className="flex-1 overflow-auto relative z-10">
         <Header />
         <div className="p-6">
-          <h2 className="text-2xl font-semibold mb-6 text-center text-blue-500">
-            Pending Documents
-          </h2>
+          <div className="flex justify-center items-center mb-6">
+            <h2 className="text-2xl font-semibold text-blue-500 mr-2">
+              Pending Documents
+            </h2>
+            <button 
+              onClick={fetchPendingData} 
+              disabled={isReloading}
+              className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+              title="Reload Data"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={`text-blue-500 w-5 h-5 ${isReloading ? 'animate-spin' : ''}`}
+              >
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
+              </svg>
+            </button>
+          </div>
 
-          {flattenedData.length === 0 ? (
+          {loading ? (
+            <div className="flex justify-center items-center h-40">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+            </div>
+          ) : flattenedData.length === 0 ? (
             <p className="text-center text-gray-600">No pending registrations found.</p>
           ) : (
             <div>
