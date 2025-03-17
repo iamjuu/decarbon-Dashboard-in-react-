@@ -15,21 +15,22 @@ const RequestPage = () => {
   const [fuelType, setFuelType] = useState("petrol");
   const [smoke, setSmoke] = useState("");
   const [lhceDetails, setLhceDetails] = useState("");
-  const [discount, setDiscount] = useState(0); // New state for discount
+  const [discount, setDiscount] = useState(0);
   const [services, setServices] = useState([{ service: "", amount: "" }]);
 
   // Fetching vehicle numbers
-  useEffect(() => {
-    const fetchVehicleNumbers = async () => {
-      try {
-        const response = await Axios.get("/vehiclenumber");
-        if (response?.data) {
-          setVehicleList(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching vehicle numbers:", error);
+  const fetchVehicleNumbers = async () => {
+    try {
+      const response = await Axios.get("/vehiclenumber");
+      if (response?.data) {
+        setVehicleList(response.data);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching vehicle numbers:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchVehicleNumbers();
   }, []);
 
@@ -47,12 +48,7 @@ const RequestPage = () => {
           setPhoneNumber(data.phone || "");
           setVehicleYear(data.vehicleyear || "");
           setVehicleModel(data.vehicleModel || "");
-
-
-
-          setKilometer(toBillObject.kilometer||"");
-
-
+          setKilometer(toBillObject?.kilometer || "");
           setSmoke(data.smoke || "");
           setLhceDetails(data.lhceDetails || "");
           setFuelType(data.fuelType || "");
@@ -86,10 +82,28 @@ const RequestPage = () => {
   const removeServiceRow = () => {
     setServices((prevServices) => {
       if (prevServices.length > 1) {
-        return prevServices.slice(0, -1); // Creates a new array without mutating the original
+        return prevServices.slice(0, -1);
       }
       return prevServices;
     });
+  };
+
+  // Reset form to initial state
+  const resetForm = () => {
+    setSelectedVehicle("");
+    setOwnerName("");
+    setPhoneNumber("");
+    setVehicleYear("");
+    setVehicleModel("");
+    setKilometer("");
+    setFuelType("petrol");
+    setSmoke("");
+    setLhceDetails("");
+    setDiscount(0);
+    setServices([{ service: "", amount: "" }]);
+    
+    // Refetch vehicle list to update available vehicles
+    fetchVehicleNumbers();
   };
 
   const handleSubmit = async (event) => {
@@ -116,7 +130,7 @@ const RequestPage = () => {
         serviceAmount: parseFloat(service.amount || 0),
       })),
       discount: parseFloat(discount),
-      totalAmount: totalAmount - discount, // Apply discount
+      totalAmount: totalAmount - discount,
     };
 
     try {
@@ -129,24 +143,9 @@ const RequestPage = () => {
         confirmButtonColor: "#3085d6",
         confirmButtonText: "OK",
       }).then(() => {
-        
-        setSelectedVehicle("");
-        setOwnerName("");
-        setPhoneNumber("");
-        setVehicleYear("");
-        setVehicleModel("");
-        setKilometer("");
-        setFuelType("petrol");
-        setSmoke("");
-        setLhceDetails("");
-        setDiscount(0);
-        setServices([{ service: "", amount: "" }]);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        // Reset form instead of reloading the page
+        resetForm();
       });
-
-      // Reset the form state after successful submission
 
     } catch (error) {
       Swal.fire({
@@ -297,7 +296,6 @@ const RequestPage = () => {
                   <option value="Petrol">Petrol</option>
                   <option value="Diesel">Diesel</option>
                   <option value="Gas">Gas</option>
-
                 </select>
               </div>
 
