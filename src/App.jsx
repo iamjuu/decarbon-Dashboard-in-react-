@@ -10,6 +10,7 @@ import NotFound from "./pages/Notfound";
 import Allregistration from "./pages/AllRegistration";
 import Booking from "./pages/Bookings";
 import DashboardLayout from "./components/DashboardLayout"; // ✅ Import Layout
+import Invoice from "./pages/invoice";
 
 // Function to check if user is authenticated
 const isAuthenticated = () => {
@@ -25,12 +26,12 @@ function App() {
       {/* Public Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/unauthorized" element={<NotFound />} />
+      <Route path="/invoice" element={<Invoice />} /> {/* Moved outside DashboardLayout */}
 
       {/* ✅ Protected Routes wrapped in DashboardLayout */}
       <Route element={<ProtectedRoute allowedRoles={["Admin", "User"]}><DashboardLayout /></ProtectedRoute>}>
         <Route path="/home" element={<OverviewPage />} />
         <Route path="/users" element={<UsersPage />} />
-       // <Route path="/settings" element={<SettingsPage />} />
         <Route path="/client-details" element={<PersonalPage />} />
         <Route path="/staffs-bill-form" element={<ShafBillForm />} />
         <Route path="/registrations" element={<Allregistration />} />

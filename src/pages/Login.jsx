@@ -68,7 +68,7 @@ console.log(error)
     <div className="flex items-center justify-center h-screen bg-gray-900 text-gray-100 px-4">
       <div className="w-full max-w-md bg-gray-800 p-8 rounded-lg shadow-lg">
         <h2 className="text-center text-2xl font-bold mb-6">
-          <p className="inline text-red-500">Nso2</p> Login
+          <p className="inline text-red-500">Nos2</p> Login
         </h2>
 
         <form onSubmit={handleLogin} className="space-y-6">

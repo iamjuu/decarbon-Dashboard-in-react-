@@ -6,19 +6,24 @@ import Swal from 'sweetalert2'; // Import SweetAlert2
 import { MdDelete } from "react-icons/md";
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
+import { useNavigate } from 'react-router-dom';
+import { FaPrint } from 'react-icons/fa';
 
 const UsersTable = ({ userData, onDelete }) => {
-  const [searchTerm, setSearchTerm] = useState(""); // Vehicle number search term
-  const [fromDate, setFromDate] = useState(""); // Start date for the range
-  const [toDate, setToDate] = useState(""); // End date for the range
-  const [selectedServiceType, setSelectedServiceType] = useState("Serviced"); // Dropdown value for service type
-  const [filteredUsers, setFilteredUsers] = useState([]); // Initialize as empty array
-  const [initialUserData, setInitialUserData] = useState([]); // Store initial user data for reset
-  const [currentPage, setCurrentPage] = useState(1); // Track current page
-  const itemsPerPage = 10; // Set the number of items per page
+  const navigate = useNavigate(); // Move this inside the component
+  const [searchTerm, setSearchTerm] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [selectedServiceType, setSelectedServiceType] = useState("Serviced");
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [initialUserData, setInitialUserData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [isLoading, setIsLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false); // Admin check
+  const [isAdmin, setIsAdmin] = useState(false);
 
+   
+  
   // Initialize filteredUsers with userData when component mounts or userData changes
   useEffect(() => {
     setInitialUserData(userData || []); // Store the initial userData
@@ -279,18 +284,18 @@ const UsersTable = ({ userData, onDelete }) => {
   
   return (
     <motion.div
-      className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
+      className="p-6 bg-gray-800 bg-opacity-50 rounded-xl border border-gray-700 shadow-lg backdrop-blur-md"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-<div className="flex items-center justify-between w-full p-3 bg-gray-900 rounded-lg shadow-lg border border-gray-800 space-x-3 overflow-hidden">
+<div className="flex overflow-hidden justify-between items-center p-3 space-x-3 w-full bg-gray-900 rounded-lg border border-gray-800 shadow-lg">
   {/* Vehicle Number Search */}
   <div className="relative flex-shrink-0">
     <input
       type="text"
       placeholder="Vehicle Number..."
-      className="bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-3 h-10 focus:outline-none focus:ring-1 focus:ring-blue-500 w-52"
+      className="pr-3 pl-10 w-52 h-10 placeholder-gray-400 text-white bg-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
       value={searchTerm}
       onChange={(e) => setSearchTerm(e.target.value)}
     />
@@ -299,30 +304,30 @@ const UsersTable = ({ userData, onDelete }) => {
   
   {/* Search Button */}
   <button
-    className="bg-blue-600 text-white px-4 h-10 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 flex-shrink-0"
+    className="flex-shrink-0 px-4 h-10 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
     onClick={handleSearch}
   >
     Search
   </button>
   
   {/* Date Range Search - Labels Inside Inputs */}
-  <div className="flex items-center space-x-2 flex-shrink-0">
+  <div className="flex flex-shrink-0 items-center space-x-2">
     <input
       type="date"
-      className="bg-gray-700 text-white rounded-lg px-3 h-10 focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
+      className="px-3 w-32 h-10 text-white bg-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
       value={fromDate}
       onChange={(e) => setFromDate(e.target.value)}
       placeholder="From"
     />
     <input
       type="date"
-      className="bg-gray-700 text-white rounded-lg px-3 h-10 focus:outline-none focus:ring-1 focus:ring-blue-500 w-32"
+      className="px-3 w-32 h-10 text-white bg-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
       value={toDate}
       onChange={(e) => setToDate(e.target.value)}
       placeholder="To"
     />
     <button
-      className="bg-blue-600 text-white px-3 h-10 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 flex-shrink-0"
+      className="flex-shrink-0 px-3 h-10 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
       onClick={handleDateRangeSearch}
     >
       Filter
@@ -332,7 +337,7 @@ const UsersTable = ({ userData, onDelete }) => {
   {/* Service Type Dropdown */}
   <div className="flex-shrink-0 w-32">
     <select
-      className="bg-gray-700 text-white border border-gray-600 rounded-lg px-3 h-10 focus:outline-none focus:ring-1 focus:ring-blue-500 w-full"
+      className="px-3 w-full h-10 text-white bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500"
       value={selectedServiceType}
       onChange={handleDropdownChange}
     >
@@ -342,15 +347,15 @@ const UsersTable = ({ userData, onDelete }) => {
   </div>
   
   {/* Action Buttons */}
-  <div className="flex space-x-2 flex-shrink-0">
+  <div className="flex flex-shrink-0 space-x-2">
     <button
-      className="bg-red-600 text-white px-3 h-10 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-red-500"
+      className="px-3 h-10 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-red-500"
       onClick={handleClear}
     >
       Clear
     </button>
     <button
-      className="bg-green-600 text-white px-3 h-10 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500"
+      className="px-3 h-10 text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500"
       onClick={handleExport}
     >
       Export
@@ -365,38 +370,36 @@ const UsersTable = ({ userData, onDelete }) => {
           <table className="min-w-full divide-y divide-gray-700">
             <thead>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
                   Owner Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
                   Phone
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
                   Vehicle Model
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
                   Vehicle Number
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
                   Year
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
                   Kilometers
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
                   Service Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
                   Discount
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
                   Total Amount
                 </th>
-                {isAdmin && (
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Action
-                  </th>
-                )}
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
@@ -406,7 +409,7 @@ const UsersTable = ({ userData, onDelete }) => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
-                  className="hover:bg-gray-700 cursor-pointer"
+                  className="cursor-pointer hover:bg-gray-700"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-100">
@@ -459,16 +462,33 @@ const UsersTable = ({ userData, onDelete }) => {
                       {user.totalAmount}
                     </span>
                   </td>
-                  {isAdmin && (
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300 ">
-                      <button
-                        className="text-red-600 hover:text-red-800"
-                        onClick={() => handleDelete(user._id)}
-                      >
-                        delete
-                      </button>
-                    </td>
-                  )}
+                 
+                {/* Action column visible to everyone */}
+<td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
+  <div className="flex gap-3 items-center">
+    {/* Print button visible for all users when service is completed */}
+    {user.servicestatus === "Serviced" && (
+      <button
+        onClick={() => handlePrint(user)}
+        className="p-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        title="Print Invoice"
+      >
+        <FaPrint size={16} />
+      </button>
+    )}
+    {/* Delete button only visible for admin */}
+    {isAdmin && (
+      <button
+        className="p-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+        onClick={() => handleDelete(user._id)}
+        title="Delete"
+      >
+        <MdDelete size={16} />
+      </button>
+    )}
+  </div>
+</td>
+                
                 </motion.tr>
               ))}
             </tbody>
@@ -477,23 +497,57 @@ const UsersTable = ({ userData, onDelete }) => {
       )}
       {/* Pagination Controls */}
       <div className="flex justify-between mt-6">
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-          onClick={() => handlePageChange("prev")}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-          onClick={() => handlePageChange("next")}
-          disabled={currentPage === Math.ceil(filteredUsers.length / itemsPerPage)}
-        >
-          Next
-        </button>
-      </div>
+  <button
+    className={`px-4 py-2 ${
+      currentPage === 1
+        ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+        : "bg-blue-600 text-white hover:bg-blue-700"
+    } rounded-lg`}
+    onClick={() => handlePageChange("prev")}
+    disabled={currentPage === 1}
+  >
+    Previous
+  </button>
+  <button
+    className={`px-4 py-2 ${
+      currentPage === Math.ceil(filteredUsers.length / itemsPerPage)
+        ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+        : "bg-blue-600 text-white hover:bg-blue-700"
+    } rounded-lg`}
+    onClick={() => handlePageChange("next")}
+    disabled={currentPage === Math.ceil(filteredUsers.length / itemsPerPage)}
+  >
+    Next
+  </button>
+</div>
     </motion.div>
   );
 };
 
 export default UsersTable;
+
+  // Updated handlePrint function to open in new tab
+  const handlePrint = (user) => {
+    // Store the invoice data in sessionStorage to access it in the new tab
+    sessionStorage.setItem('invoiceData', JSON.stringify({
+      ...user,
+      ownerName: user.ownerName,
+      phoneNumber: user.phoneNumber,
+      vehicleNumber: user.vehicleNumber,
+      vehicleModel: user.vehicleModel,
+      vehicleYear: user.vehicleYear,
+      kilometer: user.kilometer,
+      servicestatus: user.servicestatus,
+      _id: user._id,
+      services: user.services || [],
+      fuelType: user.fuelType,
+      smoke: user.smoke,
+      lhceDetails: user.lhceDetails,
+      discount: user.discount,
+      totalAmount: user.totalAmount,
+      createdAt: user.createdAt
+    }));
+  
+    // Open invoice in new tab
+    window.open('/Nos2/controlpanel/dashboard/invoice', '_blank');
+  };
