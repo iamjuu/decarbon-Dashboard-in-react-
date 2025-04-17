@@ -16,7 +16,7 @@ const Invoice = () => {
     subTitle: "BIKE AND CAR - ALL VEHICLE",
     instagram: "nos2kannur_enginedecarbonising",
     website: "www.nos2kannur.in",
-    whatsapp: "7025715250",
+    whatsapp: "9995443243",
   };
 
   useEffect(() => {
